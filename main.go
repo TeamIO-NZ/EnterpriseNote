@@ -1,5 +1,9 @@
 package main
 
+import (
+	"go.iosoftworks.com/EnterpriseNote/cmd"
+)
+
 func main() {
-	//note.Start()
+	cmd.HandleRequests()
 }
