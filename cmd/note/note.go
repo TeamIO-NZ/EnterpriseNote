@@ -20,7 +20,7 @@ func Start() {
 	zap.S().Info("Logger initialized.")
 	// 3. establish connection to postgresql
 	// 4. start webserver
-	web.WebServer{}.Start()
+	web.Server{}.Start()
 	// 5. wait for kill sig
 	// 6. shutdown webserver
 }
