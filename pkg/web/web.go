@@ -7,11 +7,13 @@ import (
 	"strconv"
 )
 
-type WebServer struct {
+//Server this is the struct that contains the webserver information
+type Server struct {
 	port int
 }
 
-func (server WebServer) Start() {
+//Start this is the function that starts the webserver
+func (server Server) Start() {
 	if server.port == 0 {
 		server.port = 8080
 		//zap.S().Warn("No webserver port config detected, using 8080.")
@@ -19,13 +21,13 @@ func (server WebServer) Start() {
 	server.handleRequests()
 
 }
-func (server WebServer) homePage(w http.ResponseWriter, r *http.Request) {
+func (server Server) homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the home page!")
 	fmt.Println("Endpoint Hit: homepage")
 }
 
 //run me to make the server work
-func (server WebServer) handleRequests() {
+func (server Server) handleRequests() {
 	http.HandleFunc("/", server.homePage)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(server.port), nil))
 }
