@@ -1,4 +1,4 @@
-#Enterprise Note
+# Enterprise Note
 
 The application you will build is called Enterprise Note and offers the notion of a shared notebook. 
 The idea is that notes can be shared with identified users who can write and read notes in this notebook.
@@ -6,7 +6,7 @@ You will pay special attention to a search and filter function that enables user
 Security is an important feature as only authorized users on this notebook will have access. 
 The application will be available as a web-service with a light-weight front-end (you're not required to build a GUI front-end).
 
-###Task List V1
+### Task List V1
 
 |Task|Status|
 |---|---|
