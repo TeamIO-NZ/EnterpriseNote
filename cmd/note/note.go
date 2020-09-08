@@ -20,7 +20,7 @@ func Start() {
 	zap.S().Info("Logger initialized.")
 	// 3. establish connection to postgresql
 	// 4. start webserver
-	web.WebServer{}.Start()
+	web.Server{}.Start()
 	// 5. wait for kill sig
 	// 6. shutdown webserver
 }
@@ -36,6 +36,7 @@ func initLogger(debug bool) (err error) {
 	cfg.Encoding = "console"
 	cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	cfg.DisableCaller = true
 
 	l, err := cfg.Build()
 	if err != nil {

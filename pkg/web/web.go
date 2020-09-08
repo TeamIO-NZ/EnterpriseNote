@@ -28,6 +28,9 @@ func (server Server) homePage(w http.ResponseWriter, r *http.Request) {
 
 //run me to make the server work
 func (server Server) handleRequests() {
-	http.HandleFunc("/", server.homePage)
+	http.Handle(
+		"/",
+		http.FileServer(http.Dir("./site")),
+	)
 	log.Fatal(http.ListenAndServe(":"+server.config.Port, nil))
 }
