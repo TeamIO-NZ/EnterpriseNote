@@ -1,0 +1,22 @@
+basic rest api to postgres database
+
+Functions{
+    Create
+    Read
+    Update(Edit)
+    Delete
+    Search
+    Change sharing details
+    Analyze (Count occurrences of specified text within a specific note - regex?)
+    Save Settings (perma sharing?)
+}
+
+
+Tables{
+    Users
+    Notes
+}
+
+Quick start guide to run everything
+
+Front end is a basic flutter web app connected to the api
