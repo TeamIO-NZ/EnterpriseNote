@@ -56,13 +56,16 @@ func (server Server) returnAllNotes(w http.ResponseWriter, r *http.Request) {
 //use mux to get us single notes
 func (server Server) returnSingleNote(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-
+	//we will need to parse the path parameters
 	vars := mux.Vars(r)
+	// we will need to extract the `id` of the article we
+	// wish to return
 	key := vars["id"]
 
 	for _, note := range Notes {
 		if note.Id == key {
 			json.NewEncoder(w).Encode(note)
+			return
 		}
 	}
 }
@@ -73,9 +76,42 @@ func (server Server) createNewNote(w http.ResponseWriter, r *http.Request) {
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	var note Note
 	json.Unmarshal(reqBody, &note)
-	note.Id = string(rune(len(Notes)))
 	Notes = append(Notes, note)
 	json.NewEncoder(w).Encode(note)
+}
+
+func (server Server) deleteNote(w http.ResponseWriter, r *http.Request) {
+	// once again, we will need to parse the path parameters
+	vars := mux.Vars(r)
+	// we will need to extract the `id` of the article we
+	// wish to delete
+	id := vars["id"]
+
+	for index, note := range Notes {
+		if note.Id == id {
+			Notes = append(Notes[:index], Notes[index+1:]...)
+			return
+		}
+	}
+}
+func (server Server) updateNote(w http.ResponseWriter, r *http.Request) {
+	// once again, we will need to parse the path parameters
+	vars := mux.Vars(r)
+
+	for index, note := range Notes {
+		if note.Id == vars["id"] {
+			Notes = append(Notes[:index], Notes[index+1:]...)
+
+			var note Note
+			_ = json.NewDecoder(r.Body).Decode(&note)
+			note.Id = vars["id"]
+			Notes = append(Notes, note)
+			json.NewEncoder(w).Encode(note)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(Notes)
+
 }
 
 //run me to make the server work
@@ -86,6 +122,9 @@ func (server Server) handleRequests() {
 	r.HandleFunc("/api/v1/notes", server.returnAllNotes).Methods("GET")
 	r.HandleFunc("/api/v1/note/{id}", server.returnSingleNote).Methods("GET")
 	r.HandleFunc("/api/v1/note", server.createNewNote).Methods("POST")
+	r.HandleFunc("/api/v1/note/{id}", server.updateNote).Methods("PUT")
+
+	r.HandleFunc("/api/v1/note/{id}", server.deleteNote).Methods("DELETE")
 	r.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect))
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))
 
