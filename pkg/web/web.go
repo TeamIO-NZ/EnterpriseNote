@@ -3,11 +3,13 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+
 	"github.com/gorilla/mux"
 	"go.iosoftworks.com/EnterpriseNote/pkg/config"
 	"go.uber.org/zap"
-	"log"
-	"net/http"
 )
 
 //Server this is the struct that contains the webserver information
@@ -53,6 +55,8 @@ func (server Server) returnAllNotes(w http.ResponseWriter, r *http.Request) {
 
 //use mux to get us single notes
 func (server Server) returnSingleNote(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	vars := mux.Vars(r)
 	key := vars["id"]
 
@@ -63,27 +67,25 @@ func (server Server) returnSingleNote(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (server Server) createNewNote(w http.ResponseWriter, r *http.Request) {
+	// get the body of our POST request
+	// return the string response containing the request body
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var note Note
+	json.Unmarshal(reqBody, &note)
+	note.Id = string(rune(len(Notes)))
+	Notes = append(Notes, note)
+	json.NewEncoder(w).Encode(note)
+}
+
 //run me to make the server work
 func (server Server) handleRequests() {
-	//// creates a new instance of a mux router
-	//myRouter := mux.NewRouter().StrictSlash(true)
-	//// replace http.HandleFunc with myRouter.HandleFunc
-	//myRouter.HandleFunc("/api/v1/", server.homePage)
-	//myRouter.HandleFunc("/api/v1/notes/", server.returnAllNotes)
-	//myRouter.HandleFunc("/api/v1/note/{id}/", server.returnSingleNote)
-	//
-	//staticPath := "/web/"
-	//myRouter.PathPrefix(staticPath).Handler(http.StripPrefix(staticPath, http.FileServer(http.Dir("."+staticPath))))
-	//myRouter.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect))
-	//// finally, instead of passing in nil, we want
-	//// to pass in our newly created router as the second
-	//// argument
-	//log.Fatal(http.ListenAndServe(":"+server.config.Port, myRouter))
 
 	r := mux.NewRouter().StrictSlash(true)
+
 	r.HandleFunc("/api/v1/notes", server.returnAllNotes).Methods("GET")
 	r.HandleFunc("/api/v1/note/{id}", server.returnSingleNote).Methods("GET")
-
+	r.HandleFunc("/api/v1/note", server.createNewNote).Methods("POST")
 	r.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect))
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))
 
