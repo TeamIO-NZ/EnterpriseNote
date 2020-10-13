@@ -23,3 +23,12 @@ The application will be available as a web-service with a light-weight front-end
 |Unit Testing|Todo|
 
 Link: [Documentation](https://eitonline.eit.ac.nz/pluginfile.php/2732418/mod_resource/content/1/ITPR6.518%20Enterprise%20Software%20Development%202.Project%202020.pdf)
+
+
+Setup Instructions with postgresql
+
+Run Postgres.
+In PGADMIN go to servers on the left
+Right click, Create Server, Name: postgres
+Connection tab, hostname: localhost
+Save

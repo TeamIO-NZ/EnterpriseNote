@@ -1,13 +1,17 @@
 package web
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"go.iosoftworks.com/EnterpriseNote/pkg/config"
 	"go.uber.org/zap"
 )
@@ -17,6 +21,7 @@ type Server struct {
 	config config.WebServerConfig
 }
 
+//Note a note object for json
 type Note struct {
 	Id      string `json:"Id"`
 	Title   string `json:"Title"`
@@ -24,6 +29,7 @@ type Note struct {
 	Content string `json:"Content"`
 }
 
+//Notes a note array
 var Notes []Note
 
 //Start this is the function that starts the webserver
@@ -45,6 +51,9 @@ func (server Server) homePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the home page!")
 	fmt.Println("Endpoint Hit: homepage")
 }
+
+//------------------------------JSON Webrequests Hander functions--------------------------------//
+
 func (server Server) returnAllNotes(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("EndpointHit: return all notes")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -114,9 +123,45 @@ func (server Server) updateNote(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func createConnection() *sql.DB {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+	db, err := sql.Open("postgres", os.Getenv("POSTGRES_URL"))
+	if err != nil {
+		panic(err)
+	}
+	err = db.Ping()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Successfully connected!")
+	// return the connection
+	return db
+}
+func createTable() {
+	db := createConnection()
+	defer db.Close()
+	sqlStatement := `CREATE TABLE IF NOT EXISTS notes (
+		userid SERIAL PRIMARY KEY,
+		title TEXT,
+		description TEXT,
+		contents TEXT
+	);`
+	res, err := db.Exec(sqlStatement)
+	if err != nil {
+		log.Fatalf("Unable to execute the query. %v", err)
+	}
+	fmt.Printf("%s\n ", res)
+}
+
+//------------------------------SQL Hander functions--------------------------------//
+
 //run me to make the server work
 func (server Server) handleRequests() {
 
+	createTable()
 	r := mux.NewRouter().StrictSlash(true)
 
 	r.HandleFunc("/api/v1/notes", server.returnAllNotes).Methods("GET")
