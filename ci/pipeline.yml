@@ -46,5 +46,4 @@ jobs:
                 ./ci/check_go_fmt.sh
                 ./ci/check_go_lint.sh
                 ./ci/check_go_generate.sh
-                ./ci/check_go_mod.sh
                 go test -v
