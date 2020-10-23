@@ -29,7 +29,7 @@ type response struct {
 
 //Note a note object for json
 type Note struct {
-	Id      string `json:"Id"`
+	ID      string `json:"Id"`
 	Title   string `json:"Title"`
 	Desc    string `json:"Desc"`
 	Content string `json:"Content"`
@@ -47,8 +47,8 @@ func (server Server) Start() {
 		//zap.S().Warn("No webserver port config detected, using 8080.")
 	}
 	Notes = []Note{
-		Note{Id: "1", Title: "Hello", Desc: "Article Description", Content: "Article Content"},
-		Note{Id: "2", Title: "Hello 2", Desc: "Article Description", Content: "Article Content"},
+		Note{ID: "1", Title: "Hello", Desc: "Article Description", Content: "Article Content"},
+		Note{ID: "2", Title: "Hello 2", Desc: "Article Description", Content: "Article Content"},
 	}
 
 	server.handleRequests()
@@ -101,13 +101,6 @@ func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
 
 	// send the response
 	json.NewEncoder(w).Encode(note)
-
-	// for _, note := range Notes {
-	// 	if note.Id == key {
-	// 		json.NewEncoder(w).Encode(note)
-	// 		return
-	// 	}
-	// }
 }
 
 //Create Note
@@ -134,10 +127,6 @@ func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(res)
 
-	// reqBody, _ := ioutil.ReadAll(r.Body)
-	// json.Unmarshal(reqBody, &note)
-	// Notes = append(Notes, note)
-	// json.NewEncoder(w).Encode(note)
 }
 
 //Delete Note
@@ -167,12 +156,6 @@ func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
 	}
 	// send the response
 	json.NewEncoder(w).Encode(res)
-	// for index, note := range Notes {
-	// 	if note.Id == id {
-	// 		Notes = append(Notes[:index], Notes[index+1:]...)
-	// 		return
-	// 	}
-	// }
 }
 
 //Update Note
@@ -207,21 +190,6 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 
 	// send the response
 	json.NewEncoder(w).Encode(res)
-
-	// for index, note := range Notes {
-	// 	if note.Id == vars["id"] {
-	// 		Notes = append(Notes[:index], Notes[index+1:]...)
-
-	// 		var note Note
-	// 		_ = json.NewDecoder(r.Body).Decode(&note)
-	// 		note.Id = vars["id"]
-	// 		Notes = append(Notes, note)
-	// 		json.NewEncoder(w).Encode(note)
-	// 		return
-	// 	}
-	// }
-	// json.NewEncoder(w).Encode(Notes)
-
 }
 
 //------------------------------Main Request Handler functions--------------------------------//
@@ -244,25 +212,6 @@ func (server Server) handleRequests() {
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
-/*
-Create Note
-Get Note
-Get All Note
-Update Note
-Delete Note
-
-////////////////////
-Helpers
-///////////////////
-insertNote
-getNote
-getAllNote
-updateNote
-deleteNote
-
-
-
-*/
 //getNote
 func getNote(id int64) (Note, error) {
 	// create the postgres db connection
@@ -281,7 +230,7 @@ func getNote(id int64) (Note, error) {
 	row := db.QueryRow(sqlStatement, id)
 
 	// unmarshal the row object to user
-	err := row.Scan(&note.Id, &note.Title, &note.Desc, &note.Content)
+	err := row.Scan(&note.ID, &note.Title, &note.Desc, &note.Content)
 
 	switch err {
 	case sql.ErrNoRows:
@@ -325,7 +274,7 @@ func getAllNotes() ([]Note, error) {
 		var note Note
 
 		// unmarshal the row object to user
-		err = rows.Scan(&note.Id, &note.Title, &note.Desc, &note.Content)
+		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content)
 
 		if err != nil {
 			log.Fatalf("Unable to scan the row. %v", err)
