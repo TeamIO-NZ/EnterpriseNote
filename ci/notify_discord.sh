@@ -24,6 +24,7 @@ then
 fi
 
 timestamp=$(date --utc -I'seconds')
+timestamp="${timestamp%"UTC"}Z"
 json="{\"embeds\":[{\"title\":\"Build on $2\",\"description\":\"$message\",\"url\":\"http://office.iosoftworks.net:8080/teams/main/pipelines/$2\",\"timestamp\":\"$timestamp\",\"color\":\"$color\"}]}"
 
 echo $json
