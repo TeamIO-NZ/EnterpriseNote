@@ -6,12 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" //sql driver. blank is required
 	"go.iosoftworks.com/EnterpriseNote/pkg/config"
 	"go.uber.org/zap"
 )
@@ -34,6 +32,14 @@ type Note struct {
 	Desc    string `json:"Desc"`
 	Content string `json:"Content"`
 }
+
+const (
+	host     = "office.iosoftworks.net"
+	port     = 5432
+	user     = "postgres"
+	password = "halo1234"
+	dbname   = "postgres"
+)
 
 //Notes a note array
 var Notes []Note
@@ -61,7 +67,7 @@ func (server Server) homePage(w http.ResponseWriter, r *http.Request) {
 
 //------------------------------JSON Webrequests Hander functions--------------------------------//
 
-//Get All Note
+//ReturnAllNotes Gets all the notes in json format
 func (server Server) ReturnAllNotes(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println("EndpointHit: return all notes")
 
@@ -77,7 +83,7 @@ func (server Server) ReturnAllNotes(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//Get Note
+//ReturnSingleNote Get Notes with mux in json format
 //use mux to get us single notes
 func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
@@ -103,7 +109,7 @@ func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(note)
 }
 
-//Create Note
+//CreateNewNote Create Note in json format
 func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 	// get the body of our POST request
 	// Allow all origin to handle cors issue
@@ -377,11 +383,16 @@ func insertNote(note Note) int64 {
 //------------------------------SQL Hander functions--------------------------------//
 
 func createConnection() *sql.DB {
-	err := godotenv.Load(".env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-	db, err := sql.Open("postgres", os.Getenv("POSTGRES_URL"))
+	//err := godotenv.Load(".env")
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+		"password=%s dbname=%s sslmode=disable",
+		host, port, user, password, dbname)
+	// if err != nil {
+	// 	log.Fatalf("Error loading .env file")
+	// }
+	// db, err := sql.Open("postgres", os.Getenv("POSTGRES_URL"))
+	db, err := sql.Open("postgres", psqlInfo)
+
 	if err != nil {
 		panic(err)
 	}
