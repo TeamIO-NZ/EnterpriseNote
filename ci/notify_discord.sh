@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # This script is used to notify discord of post-build status
 
 # ./ci/notify_discord.sh "webhook url" "Project Name" status
