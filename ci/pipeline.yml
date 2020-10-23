@@ -38,12 +38,69 @@ jobs:
                 GOPATH=$PWD/go
                 
                 cd go/src/go.iosoftworks.com/EnterpriseNote
+                
+                go mod download
 
                 go vet
                 go build
                 go install github.com/golang/mock/mockgen
-                GO111MODULE=off go get -u golang.org/x/lint/golint
                 ./ci/check_go_fmt.sh
-                ./ci/check_go_lint.sh
                 ./ci/check_go_generate.sh
                 go test -v
+    on_success:
+      do:
+      - task: notify-success
+        config:
+          platform: linux
+          image_resource: &apline
+            type: docker-image
+            source:
+              repository: alpine
+              tag: edge
+          run:
+            path: sh
+            args:
+            - ./ci/notify_discord.sh
+            - "((hook-url))"
+            - enterprise-note
+            - success
+        
+    on_abort:
+      do:
+      - task: notify-abort
+        config:
+          platform: linux
+          image_resource: *apline
+          run:
+            path: sh
+            args:
+            - ./ci/notify_discord.sh
+            - "((hook-url))"
+            - enterprise-note
+            - abort
+    on_failure:
+      do:
+      - task: notify-failure
+        config:
+          platform: linux
+          image_resource: *apline
+          run:
+            path: sh
+            args:
+            - ./ci/notify_discord.sh
+            - "((hook-url))"
+            - enterprise-note
+            - failure
+    on_error:
+      do:
+      - task: notify-error
+        config:
+          platform: linux
+          image_resource: *apline
+          run:
+            path: sh
+            args:
+            - ./ci/notify_discord.sh
+            - "((hook-url))"
+            - enterprise-note
+            - error
