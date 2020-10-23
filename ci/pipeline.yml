@@ -1,0 +1,49 @@
+---
+resources:
+  - name: enterprise-note-git
+    type: git
+    icon: github
+    source:
+      uri: https://github.com/TeamIO-NZ/EnterpriseNote
+      branch: master
+
+  - name: golang-1.15.x-image
+    type: registry-image
+    icon: docker
+    source:
+      repository: golang
+      tag: 1.15
+
+jobs:
+  - name: golang-1.15.x
+    plan:
+      - get: enterprise-note-git
+        trigger: true
+      - get: golang-1.15.x-image
+        trigger: true
+      - task: run
+        image: golang-1.15.x-image
+        config:
+            inputs:
+              - name: enterprise-note-git
+                path: go/src/go.iosoftworks.com/EnterpriseNote/
+            params:
+                GO111MODULE: "on"
+            run:
+              path: sh
+              args: 
+              - -c
+              - |
+                GOPATH=$PWD/go
+                
+                cd go/src/go.iosoftworks.com/EnterpriseNote
+
+                go vet
+                go build
+                go install github.com/golang/mock/mockgen
+                GO111MODULE=off go get -u golang.org/x/lint/golint
+                ./ci/check_go_fmt.sh
+                ./ci/check_go_lint.sh
+                ./ci/check_go_generate.sh
+                ./ci/check_go_mod.sh
+                go test -v
