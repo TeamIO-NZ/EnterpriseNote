@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq" //sql driver. blank is required
 	"go.iosoftworks.com/EnterpriseNote/pkg/config"
 	"go.uber.org/zap"
@@ -383,15 +385,15 @@ func insertNote(note Note) int64 {
 //------------------------------SQL Hander functions--------------------------------//
 
 func createConnection() *sql.DB {
-	//err := godotenv.Load(".env")
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
-		"password=%s dbname=%s sslmode=disable",
-		host, port, user, password, dbname)
+	err := godotenv.Load(".env")
+	// psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
+	// 	"password=%s dbname=%s sslmode=disable",
+	// 	host, port, user, password, dbname)
 	// if err != nil {
 	// 	log.Fatalf("Error loading .env file")
 	// }
-	// db, err := sql.Open("postgres", os.Getenv("POSTGRES_URL"))
-	db, err := sql.Open("postgres", psqlInfo)
+	db, err := sql.Open("postgres", os.Getenv("POSTGRES_URL"))
+	//db, err := sql.Open("postgres", psqlInfo)
 
 	if err != nil {
 		panic(err)
