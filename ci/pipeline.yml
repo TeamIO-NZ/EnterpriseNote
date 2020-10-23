@@ -24,6 +24,7 @@ jobs:
       - task: run
         image: golang-1.15.x-image
         config:
+            platform: linux
             inputs:
               - name: enterprise-note-git
                 path: go/src/go.iosoftworks.com/EnterpriseNote/
