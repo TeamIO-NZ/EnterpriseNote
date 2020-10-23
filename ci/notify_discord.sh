@@ -23,7 +23,7 @@ then
     message="build on $2 failed"
 fi
 
-timestamp=$(date --utc --iso-8601=seconds)
+timestamp=$(date --utc -I[SPEC=seconds])
 json="{\"embeds\":[{\"title\":\"Build on $2\",\"description\":\"$message\",\"url\":\"http://office.iosoftworks.net:8080/teams/main/pipelines/$2\",\"timestamp\":\"$timestamp\Z\",\"color\":\"$color\"}]}"
 
 echo $json
