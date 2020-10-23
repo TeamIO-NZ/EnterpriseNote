@@ -61,11 +61,13 @@ func (server Server) homePage(w http.ResponseWriter, r *http.Request) {
 
 //------------------------------JSON Webrequests Hander functions--------------------------------//
 
-func (server Server) returnAllNotes(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("EndpointHit: return all notes")
+//Get All Note
+func (server Server) ReturnAllNotes(w http.ResponseWriter, r *http.Request) {
+	//fmt.Println("EndpointHit: return all notes")
+
+	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "GET")
-	w.Header().Set("Context-Type", "application/json")
+
 	notes, err := getAllNotes()
 
 	if err != nil {
@@ -75,8 +77,9 @@ func (server Server) returnAllNotes(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//Get Note
 //use mux to get us single notes
-func (server Server) returnSingleNote(w http.ResponseWriter, r *http.Request) {
+func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	//we will need to parse the path parameters
@@ -91,6 +94,7 @@ func (server Server) returnSingleNote(w http.ResponseWriter, r *http.Request) {
 	}
 	// call the getUser function with user id to retrieve a single user
 	note, err := getNote(int64(id))
+
 	if err != nil {
 		log.Fatalf("Unable to get note. %v", err)
 	}
@@ -106,7 +110,8 @@ func (server Server) returnSingleNote(w http.ResponseWriter, r *http.Request) {
 	// }
 }
 
-func (server Server) createNewNote(w http.ResponseWriter, r *http.Request) {
+//Create Note
+func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 	// get the body of our POST request
 	// Allow all origin to handle cors issue
 	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
@@ -135,56 +140,88 @@ func (server Server) createNewNote(w http.ResponseWriter, r *http.Request) {
 	// json.NewEncoder(w).Encode(note)
 }
 
-func (server Server) deleteNote(w http.ResponseWriter, r *http.Request) {
+//Delete Note
+func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	// once again, we will need to parse the path parameters
 	vars := mux.Vars(r)
-	// we will need to extract the `id` of the article we
-	// wish to delete
-	id := vars["id"]
+	// we will need to extract the `id` of the article we need to delete
 
-	for index, note := range Notes {
-		if note.Id == id {
-			Notes = append(Notes[:index], Notes[index+1:]...)
-			return
-		}
-	}
-}
-func (server Server) updateNote(w http.ResponseWriter, r *http.Request) {
-	// once again, we will need to parse the path parameters
-	vars := mux.Vars(r)
-
-	for index, note := range Notes {
-		if note.Id == vars["id"] {
-			Notes = append(Notes[:index], Notes[index+1:]...)
-
-			var note Note
-			_ = json.NewDecoder(r.Body).Decode(&note)
-			note.Id = vars["id"]
-			Notes = append(Notes, note)
-			json.NewEncoder(w).Encode(note)
-			return
-		}
-	}
-	json.NewEncoder(w).Encode(Notes)
-
-}
-func insertNote(note Note) int64 {
-	db := createConnection()
-
-	defer db.Close()
-
-	sqlStatement := `INSERT INTO notes (title, description, contents) VALUES ($1, $2, $3) RETURNING id`
-
-	var id int64
-
-	err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Content).Scan(&id)
+	// convert the id in string to int
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
+		log.Fatalf("Unable to convert the string into int.  %v", err)
 	}
-	fmt.Printf("Inserted a single record %v", id)
+	// call the deleteUser, convert the int to int64
+	deletedRows := deleteNote(int64(id))
 
-	// return the inserted id
-	return id
+	// format the message string
+	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
+	// format the reponse message
+	res := response{
+		ID:      int64(id),
+		Message: msg,
+	}
+	// send the response
+	json.NewEncoder(w).Encode(res)
+	// for index, note := range Notes {
+	// 	if note.Id == id {
+	// 		Notes = append(Notes[:index], Notes[index+1:]...)
+	// 		return
+	// 	}
+	// }
+}
+
+//Update Note
+func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
+	// once again, we will need to parse the path parameters
+	w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "PUT")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	vars := mux.Vars(r)
+
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Fatalf("Unable to convert the string into an int. %v", err)
+	}
+	var note Note
+
+	err = json.NewDecoder(r.Body).Decode(&note)
+	if err != nil {
+		log.Fatalf("Unable to decode the request body.  %v", err)
+	}
+
+	updatedRows := updateNote(int64(id), note)
+
+	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
+	// format the response message
+	res := response{
+		ID:      int64(id),
+		Message: msg,
+	}
+
+	// send the response
+	json.NewEncoder(w).Encode(res)
+
+	// for index, note := range Notes {
+	// 	if note.Id == vars["id"] {
+	// 		Notes = append(Notes[:index], Notes[index+1:]...)
+
+	// 		var note Note
+	// 		_ = json.NewDecoder(r.Body).Decode(&note)
+	// 		note.Id = vars["id"]
+	// 		Notes = append(Notes, note)
+	// 		json.NewEncoder(w).Encode(note)
+	// 		return
+	// 	}
+	// }
+	// json.NewEncoder(w).Encode(Notes)
+
 }
 
 //------------------------------Main Request Handler functions--------------------------------//
@@ -195,18 +232,38 @@ func (server Server) handleRequests() {
 	createTable()
 	r := mux.NewRouter().StrictSlash(true)
 
-	r.HandleFunc("/api/v1/notes", server.returnAllNotes).Methods("GET")
-	r.HandleFunc("/api/v1/note/{id}", server.returnSingleNote).Methods("GET")
-	r.HandleFunc("/api/v1/note", server.createNewNote).Methods("POST")
-	r.HandleFunc("/api/v1/note/{id}", server.updateNote).Methods("PUT")
+	r.HandleFunc("/api/v1/notes", server.ReturnAllNotes).Methods("GET")
+	r.HandleFunc("/api/v1/note/{id}", server.ReturnSingleNote).Methods("GET")
+	r.HandleFunc("/api/v1/note", server.CreateNewNote).Methods("POST")
+	r.HandleFunc("/api/v1/note/{id}", server.UpdateNote).Methods("PUT")
 
-	r.HandleFunc("/api/v1/note/{id}", server.deleteNote).Methods("DELETE")
+	r.HandleFunc("/api/v1/note/{id}", server.DeleteNote).Methods("DELETE")
 	r.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect))
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))
 
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
+/*
+Create Note
+Get Note
+Get All Note
+Update Note
+Delete Note
+
+////////////////////
+Helpers
+///////////////////
+insertNote
+getNote
+getAllNote
+updateNote
+deleteNote
+
+
+
+*/
+//getNote
 func getNote(id int64) (Note, error) {
 	// create the postgres db connection
 	db := createConnection()
@@ -345,6 +402,29 @@ func deleteNote(id int64) int64 {
 	return rowsAffected
 }
 
+//insert note
+func insertNote(note Note) int64 {
+
+	db := createConnection()
+
+	defer db.Close()
+
+	sqlStatement := `INSERT INTO notes (title, description, contents) VALUES ($1, $2, $3) RETURNING id`
+
+	var id int64
+
+	err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Title).Scan(&id)
+
+	if err != nil {
+		log.Fatalf("Unable to execute the query. %v", err)
+	}
+
+	fmt.Printf("Inserted a single record %v", id)
+
+	// return the inserted id
+	return id
+}
+
 //------------------------------SQL Hander functions--------------------------------//
 
 func createConnection() *sql.DB {
@@ -368,7 +448,7 @@ func createTable() {
 	db := createConnection()
 	defer db.Close()
 	sqlStatement := `CREATE TABLE IF NOT EXISTS notes (
-		userid SERIAL PRIMARY KEY,
+		id SERIAL PRIMARY KEY,
 		title TEXT,
 		description TEXT,
 		contents TEXT
