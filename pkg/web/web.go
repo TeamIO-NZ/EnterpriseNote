@@ -4,12 +4,12 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"net/http"
-	"os"
+	"net/http" // used to access the request and response object of the api
+	"os"       // used to read the environment variable
 
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
-	_ "github.com/lib/pq" //sql driver. blank is required
+	"github.com/gorilla/mux"   // used to get the params from the route
+	"github.com/joho/godotenv" // package used to read the .env file
+	_ "github.com/lib/pq"      //sql driver. blank is required
 	"go.iosoftworks.com/EnterpriseNote/pkg/config"
 	"go.uber.org/zap"
 )
@@ -77,14 +77,18 @@ func (server Server) homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 //------------------------------SQL Hander functions--------------------------------//
-
+// create connection with postgres db
 func createConnection() *sql.DB {
+	// load .env file
+
 	err := godotenv.Load(".env")
 
+	// Open the connection
 	db, err := sql.Open("postgres", os.Getenv("POSTGRES_URL"))
 	if err != nil {
 		panic(err)
 	}
+	// check the connection
 	err = db.Ping()
 	if err != nil {
 		panic(err)
@@ -94,19 +98,22 @@ func createConnection() *sql.DB {
 	return db
 }
 func createTable() {
+	//creates database connection
 	db := createConnection()
+	//prepares to close database when done
 	defer db.Close()
+	//create the base notes table for if it doesn't exist
 	sqlStatement := `CREATE TABLE IF NOT EXISTS notes (
 		id SERIAL PRIMARY KEY,
 		title TEXT,
 		description TEXT,
 		contents TEXT
 	);`
-
+	//execute the sql statement and return a response
 	res, err := db.Exec(sqlStatement)
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
 	}
-
+	//print the response maybe
 	fmt.Printf("%s\n ", res)
 }

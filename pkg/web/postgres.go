@@ -9,6 +9,7 @@ import (
 //------------------------------Main Request Handler functions--------------------------------//
 
 //getNote
+// get one user from the DB by its userid
 func getNote(id int64) (Note, error) {
 	// create the postgres db connection
 	db := createConnection()
@@ -147,17 +148,19 @@ func deleteNote(id int64) int64 {
 	return rowsAffected
 }
 
-//insert note
+//insert note into the database
 func insertNote(note Note) int64 {
-
+	// create the postgres db connection
 	db := createConnection()
-
+	// close the db connection
 	defer db.Close()
-
+	// create the insert sql query
+	// returning id will return the id of the inserted note
 	sqlStatement := `INSERT INTO notes (title, description, contents) VALUES ($1, $2, $3) RETURNING id`
-
+	// the inserted id will store in this id
 	var id int64
-
+	// execute the sql statement
+	// Scan function will save the insert id in the id
 	err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Title).Scan(&id)
 
 	if err != nil {
