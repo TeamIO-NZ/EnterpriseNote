@@ -26,5 +26,7 @@ fi
 timestamp=$(date --utc +%FT%T.%3NZ)
 json="{\"embeds\":[{\"title\":\"Build on $2\",\"description\":\"$message\",\"url\":\"http://office.iosoftworks.net:8080/teams/main/pipelines/$2\",\"timestamp\":\"$timestamp\",\"color\":\"$color\"}]}"
 
+echo $json
+
 curl -X POST --data "$json" --header "Content-Type:application/json" "$1"
 
