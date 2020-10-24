@@ -11,6 +11,8 @@ import (
 	"github.com/joho/godotenv" // package used to read the .env file
 	_ "github.com/lib/pq"      //sql driver. blank is required
 	"go.iosoftworks.com/EnterpriseNote/pkg/config"
+	"go.iosoftworks.com/EnterpriseNote/pkg/models"
+
 	"go.uber.org/zap"
 )
 
@@ -25,16 +27,8 @@ type response struct {
 	Message string `json:"message,omitempty"`
 }
 
-//Note a note object for json
-type Note struct {
-	ID      string `json:"Id"`
-	Title   string `json:"Title"`
-	Desc    string `json:"Desc"`
-	Content string `json:"Content"`
-}
-
 //Notes a note array
-var Notes []Note
+var Notes []models.Note
 var port = "8082"
 
 //Start this is the function that starts the webserver
@@ -46,10 +40,10 @@ func (server Server) Start() {
 		server.config.Port = port
 		//zap.S().Warn("No webserver port config detected, using 8080.")
 	}
-	Notes = []Note{
-		Note{ID: "1", Title: "Hello", Desc: "Article Description", Content: "Article Content"},
-		Note{ID: "2", Title: "Hello 2", Desc: "Article Description", Content: "Article Content"},
-	}
+	// Notes = []models.Note{
+	// 	models.Note{ID: "1", Title: "Hello", Desc: "Article Description", Content: "Article Content"},
+	// 	models.Note{ID: "2", Title: "Hello 2", Desc: "Article Description", Content: "Article Content"},
+	// }
 
 	server.HandleRequests()
 
@@ -64,18 +58,24 @@ func (server Server) HandleRequests() {
 	r.HandleFunc("/api/v1/note/{id}", server.ReturnSingleNote).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/v1/note", server.CreateNewNote).Methods("POST", "OPTIONS")
 	r.HandleFunc("/api/v1/note/{id}", server.UpdateNote).Methods("PUT", "OPTIONS")
-
 	r.HandleFunc("/api/v1/note/{id}", server.DeleteNote).Methods("DELETE", "OPTIONS")
+
+	r.HandleFunc("/api/v1/users", server.ReturnAllUsers).Methods("GET", "OPTIONS")
+	r.HandleFunc("/api/v1/user/{id}", server.ReturnSingleUser).Methods("GET", "OPTIONS")
+	r.HandleFunc("/api/v1/user", server.CreateNewUser).Methods("POST", "OPTIONS")
+	r.HandleFunc("/api/v1/user/{id}", server.UpdateUser).Methods("PUT", "OPTIONS")
+	r.HandleFunc("/api/v1/user/{id}", server.DeleteUser).Methods("DELETE", "OPTIONS")
 
 	r.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect)).Methods("GET", "OPTIONS")
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))
 
 	log.Fatal(http.ListenAndServe(":"+port, r))
 }
-func (server Server) homePage(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to the home page!")
-	fmt.Println("Endpoint Hit: homepage")
-}
+
+// func (server Server) homePage(w http.ResponseWriter, r *http.Request) {
+// 	fmt.Fprintf(w, "Welcome to the home page!")
+// 	fmt.Println("Endpoint Hit: homepage")
+// }
 
 //------------------------------SQL Hander functions--------------------------------//
 // create connection with postgres db
@@ -104,11 +104,11 @@ func createTable() {
 	//prepares to close database when done
 	defer db.Close()
 	//create the base notes table for if it doesn't exist
-	sqlStatement := `CREATE TABLE IF NOT EXISTS notes (
+	sqlStatement := `CREATE TABLE IF NOT EXISTS users (
 		id SERIAL PRIMARY KEY,
-		title TEXT,
-		description TEXT,
-		contents TEXT
+		name TEXT,
+		password TEXT,
+		email TEXT
 	);`
 	//execute the sql statement and return a response
 	res, err := db.Exec(sqlStatement)
