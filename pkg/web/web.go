@@ -35,11 +35,12 @@ type Note struct {
 
 //Notes a note array
 var Notes []Note
-var port = "8080"
+var port = "8082"
 
 //Start this is the function that starts the webserver
 func (server Server) Start() {
 	zap.S().Info("Starting webserver...")
+	zap.S().Info("Go to http://localhost:8082/web/#/")
 	server.config.Port = port
 	if server.config.Port == "" {
 		server.config.Port = port
@@ -57,16 +58,16 @@ func (server Server) Start() {
 //HandleRequests run me to make the server work
 func (server Server) HandleRequests() {
 
-	createTable()
 	r := mux.NewRouter().StrictSlash(true)
 
-	r.HandleFunc("/api/v1/notes", server.ReturnAllNotes).Methods("GET")
-	r.HandleFunc("/api/v1/note/{id}", server.ReturnSingleNote).Methods("GET")
-	r.HandleFunc("/api/v1/note", server.CreateNewNote).Methods("POST")
-	r.HandleFunc("/api/v1/note/{id}", server.UpdateNote).Methods("PUT")
+	r.HandleFunc("/api/v1/notes", server.ReturnAllNotes).Methods("GET", "OPTIONS")
+	r.HandleFunc("/api/v1/note/{id}", server.ReturnSingleNote).Methods("GET", "OPTIONS")
+	r.HandleFunc("/api/v1/note", server.CreateNewNote).Methods("POST", "OPTIONS")
+	r.HandleFunc("/api/v1/note/{id}", server.UpdateNote).Methods("PUT", "OPTIONS")
 
-	r.HandleFunc("/api/v1/note/{id}", server.DeleteNote).Methods("DELETE")
-	r.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect))
+	r.HandleFunc("/api/v1/note/{id}", server.DeleteNote).Methods("DELETE", "OPTIONS")
+
+	r.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect)).Methods("GET", "OPTIONS")
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))
 
 	log.Fatal(http.ListenAndServe(":"+port, r))

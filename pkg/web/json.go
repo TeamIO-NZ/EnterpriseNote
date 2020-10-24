@@ -15,8 +15,11 @@ import (
 
 //ReturnAllNotes Gets all the notes in json format
 func (server Server) ReturnAllNotes(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+
 	//get all the notes in the database. returns the notes and any errors
 	notes, err := getAllNotes()
 
@@ -31,8 +34,10 @@ func (server Server) ReturnAllNotes(w http.ResponseWriter, r *http.Request) {
 //ReturnSingleNote Get Notes in json format by id
 //use mux to get us single notes
 func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	//we will need to parse the path parameters
 	vars := mux.Vars(r)
 	// we will need to extract the `id` of the article we
@@ -58,10 +63,10 @@ func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
 func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 	// get the body of our POST request
 	// Allow all origin to handle cors issue
-	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	w.Header().Set("Content-Type", "application/json")
+	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	// return the string response containing the request body
 
 	var note Note
@@ -82,10 +87,10 @@ func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 
 //DeleteNote deletes a note
 func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	// once again, we will need to parse the path parameters
 	vars := mux.Vars(r)
 	// we will need to extract the `id` of the article we need to delete
@@ -111,10 +116,10 @@ func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
 
 //UpdateNote updates the note as json
 func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
+	// w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	// get the userid from the request params, key is "id"
 	vars := mux.Vars(r)

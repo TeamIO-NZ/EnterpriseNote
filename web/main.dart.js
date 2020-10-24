@@ -42590,7 +42590,7 @@ mK:function(){var s=0,r=P.an(t.fq),q,p,o,n,m,l,k,j
 var $async$mK=P.ag(function(a,b){if(a===1)return P.ak(b,r)
 while(true)switch(s){case 0:k=t.X
 s=3
-return P.aD(G.a9w("http://localhost:8080/api/v1/notes",P.b6(["Access-Control-Allow-Origin","*"],k,k)),$async$mK)
+return P.aD(G.a9w("http://localhost:8082/api/v1/notes",P.b6(["Access-Control-Allow-Origin","*"],k,k)),$async$mK)
 case 3:j=b
 if(j.b===200){p=C.bn.d5(0,B.a9o(U.a7P(j.e).c.a.i(0,"charset")).d5(0,j.x))
 o=H.d([],t.ku)
