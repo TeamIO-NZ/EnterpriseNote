@@ -287,3 +287,20 @@ func (server Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	// send the response
 	json.NewEncoder(w).Encode(res)
 }
+
+//------------------------------JSON Webrequests Hander functions -- Specifics --------------------------------//
+//function that returns a bunch of notes with specific searching
+func (server Server) SearchForNotes(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	//get all the notes in the database. returns the notes and any errors
+	notes, err := getSpecificNotes()
+
+	if err != nil {
+		log.Fatalf("Unable to get all notes/ %v", err)
+	}
+	// send all the notes as response
+	json.NewEncoder(w).Encode(notes)
+
+}

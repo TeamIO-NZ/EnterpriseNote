@@ -12,7 +12,6 @@ import (
 	_ "github.com/lib/pq"      //sql driver. blank is required
 	"go.iosoftworks.com/EnterpriseNote/pkg/config"
 	"go.iosoftworks.com/EnterpriseNote/pkg/models"
-
 	"go.uber.org/zap"
 )
 

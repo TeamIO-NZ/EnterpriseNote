@@ -341,3 +341,80 @@ func insertUser(user models.User) int64 {
 	// return the inserted id
 	return id
 }
+
+/*------------------specific searches-----------**/
+// get one user from the DB by its userid
+func getSpecificNotes(searchType int) ([]models.Note, error) {
+	// create the postgres db connection
+	db := createConnection()
+
+	// close the db connection
+	defer db.Close()
+
+	var notes []models.Note
+
+	// create the select sql query
+	//TODO work out this statement
+	sqlStatement := ` `
+
+	switch searchType {
+	case 1:
+		{
+			//todo a sentence with a given prefix and/or suffix.
+			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
+			break
+		}
+	case 2:
+		{
+			// -a phone number with a given area code and optionally a consecutive sequence of numbers that are part 0f that number.
+			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
+			break
+		}
+	case 3:
+		{
+			//an email address on a domain that is only partially provided.
+			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
+			break
+		}
+	case 4:
+		{
+			//• text that contains at least three of the following case-insensitive words: meeting, minutes, agenda, action, attendees, apologies.
+
+			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
+			break
+		}
+	case 5:
+		{
+			// a word in all capitals of three characters or more.
+			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
+			break
+		}
+	}
+
+	// execute the sql statement
+	rows, err := db.Query(sqlStatement)
+
+	if err != nil {
+		log.Fatalf("Unable to execute the query. %v", err)
+	}
+
+	// close the statement
+	defer rows.Close()
+
+	// iterate over the rows
+	for rows.Next() {
+		var note models.Note
+
+		// unmarshal the row object to user
+		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content)
+
+		if err != nil {
+			log.Fatalf("Unable to scan the row. %v", err)
+		}
+
+		// append the user in the users slice
+		notes = append(notes, note)
+
+	}
+	return notes, err
+}
