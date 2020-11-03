@@ -97,6 +97,9 @@ func createConnection() *sql.DB {
 	// return the connection
 	return db
 }
+
+//TODO function for dropping and rebuilding tables.
+//TODO function for loading in a csv for a temp table or something
 func createTable() {
 	//creates database connection
 	db := createConnection()
@@ -109,8 +112,25 @@ func createTable() {
 		password TEXT,
 		email TEXT
 	);`
+
 	//execute the sql statement and return a response
 	res, err := db.Exec(sqlStatement)
+	if err != nil {
+		log.Fatalf("Unable to execute the query. %v", err)
+	}
+	//print the response maybe
+	fmt.Printf("%s\n ", res)
+
+	//TODO rebuild this table function
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `CREATE TABLE IF NOT EXISTS notes (
+			id SERIAL PRIMARY KEY,
+			name TEXT,
+			password TEXT,
+			email TEXT
+		);`
+	//execute the sql statement and return a response
+	res, err = db.Exec(sqlStatement)
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
 	}
