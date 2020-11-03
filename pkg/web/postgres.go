@@ -360,32 +360,32 @@ func getSpecificNotes(searchType int) ([]models.Note, error) {
 	switch searchType {
 	case 1:
 		{
-			//todo a sentence with a given prefix and/or suffix.
+			//TODO a sentence with a given prefix and/or suffix.
 			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
 			break
 		}
 	case 2:
 		{
-			// -a phone number with a given area code and optionally a consecutive sequence of numbers that are part 0f that number.
+			//TODO-a phone number with a given area code and optionally a consecutive sequence of numbers that are part 0f that number.
 			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
 			break
 		}
 	case 3:
 		{
-			//an email address on a domain that is only partially provided.
+			//TODO an email address on a domain that is only partially provided.
 			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
 			break
 		}
 	case 4:
 		{
-			//• text that contains at least three of the following case-insensitive words: meeting, minutes, agenda, action, attendees, apologies.
+			//TODO text that contains at least three of the following case-insensitive words: meeting, minutes, agenda, action, attendees, apologies.
 
 			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
 			break
 		}
 	case 5:
 		{
-			// a word in all capitals of three characters or more.
+			//TODO a word in all capitals of three characters or more.
 			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
 			break
 		}

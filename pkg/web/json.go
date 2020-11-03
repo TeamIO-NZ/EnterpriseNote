@@ -289,13 +289,22 @@ func (server Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 //------------------------------JSON Webrequests Hander functions -- Specifics --------------------------------//
-//function that returns a bunch of notes with specific searching
+
+//SearchForNotes function that returns a bunch of notes with specific searching
 func (server Server) SearchForNotes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
-	//get all the notes in the database. returns the notes and any errors
-	notes, err := getSpecificNotes()
+	// get the userid from the request params, key is "id"
+	vars := mux.Vars(r)
+	// convert the id type from string to int
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Fatalf("Unable to convert the string into an int. %v", err)
+	}
+	//get specific notes in the database. returns the notes and any errors
+	//input is 1-5 based on what notes we want. More functions to come maybe?
+	notes, err := getSpecificNotes(id)
 
 	if err != nil {
 		log.Fatalf("Unable to get all notes/ %v", err)
