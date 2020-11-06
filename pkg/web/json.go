@@ -355,8 +355,16 @@ func (server Server) Login(w http.ResponseWriter, r *http.Request) {
 	//TODO: check if creds are valid
 	//TODO: generate api token
 	//TODO: return api token
-	_ = json.NewEncoder(w).Encode(models.APIResponse{
-		Code: 200,
-		Data: "totally-an-api-key",
-	})
+	//create the data
+	var data, err = checkLogin(username, password)
+	//check for errors
+	if err != nil {
+		log.Printf("Unable to get user login/ %v", err)
+	}
+	//encode the data
+	json.NewEncoder(w).Encode(data)
+	// _ = json.NewEncoder(w).Encode(models.APIResponse{
+	// 	Code: 200,
+	// 	Data: "totally-an-api-key",
+	// })
 }

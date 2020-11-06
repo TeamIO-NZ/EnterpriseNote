@@ -2,6 +2,7 @@ package web
 
 import (
 	"database/sql"
+	b64 "encoding/base64"
 	"fmt"
 	"log"
 
@@ -417,6 +418,50 @@ func getSpecificNotes(searchType int) ([]models.Note, error) {
 
 	}
 	return notes, err
+}
+
+//give this a name and password and it spits out an api response with a token
+func checkLogin(name string, password string) (models.APIResponse, error) {
+	db := createConnection()
+	// close the db connection
+	defer db.Close()
+	sqlStatement := `SELECT * FROM users WHERE name = $1 and password = $2`
+	// execute the sql statement
+	rows, err := db.Query(sqlStatement, name, password)
+	var users []models.User
+	if err != nil {
+		log.Fatalf("Unable to execute the query. %v", err)
+	}
+	//TODO theoretically this could return more than one user
+	for rows.Next() {
+		var user models.User
+
+		// unmarshal the row object to user
+		err = rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
+
+		if err != nil {
+			log.Fatalf("Unable to scan the row. %v", err)
+		}
+
+		// append the user in the users slice
+		users = append(users, user)
+	}
+	// close the statement
+	//populate the response
+	//TODO implement checks for multiple users with the same user and password
+	var api models.APIResponse
+	api.Code = 200
+	api.Message = "Successful User Acquired"
+	api.Data = generateToken(users[0]) //use only the first one
+	defer rows.Close()
+	return api, err
+}
+
+//take a user and use the stuff to make base64 encoded login token. DO NOT DO THIS IN PRODUCTION
+func generateToken(user models.User) string {
+	data := user.Name + user.Password
+	sEnc := b64.StdEncoding.EncodeToString([]byte(data))
+	return sEnc
 }
 
 // get one user from the DB by its userid
