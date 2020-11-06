@@ -314,6 +314,7 @@ func (server Server) SearchForNotes(w http.ResponseWriter, r *http.Request) {
 
 }
 
+<<<<<<< HEAD
 //GetAllNotesUserHasAccessTo function that returns a bunch of notes with specific searching
 func (server Server) GetAllNotesUserHasAccessTo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -337,3 +338,27 @@ func (server Server) GetAllNotesUserHasAccessTo(w http.ResponseWriter, r *http.R
 	json.NewEncoder(w).Encode(notes)
 
 }
+=======
+// Login method that generates an api key and returns it to the client if the provided login information is correct
+func (server Server) Login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+
+	username := r.Header.Get("X-Username")
+	password := r.Header.Get("X-Password")
+	if username == "" || password == "" {
+		_ = json.NewEncoder(w).Encode(models.APIResponse{
+			Code:    400,
+			Message: "400: Bad Request. Empty username or password, set X-Username or X-Password headers to use.",
+		})
+	}
+	//TODO: check if creds are valid
+	//TODO: generate api token
+	//TODO: return api token
+	_ = json.NewEncoder(w).Encode(models.APIResponse{
+		Code: 200,
+		Data: "totally-an-api-key",
+	})
+}
+>>>>>>> 253959985537c8da79392f3eadaed9d8cd3c15a5
