@@ -29,7 +29,7 @@ func getNote(id int64) (models.Note, error) {
 	row := db.QueryRow(sqlStatement, id)
 
 	// unmarshal the row object to user
-	err := row.Scan(&note.ID, &note.Title, &note.Desc, &note.Content)
+	err := row.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &note.Viewers, &note.Editors)
 
 	switch err {
 	case sql.ErrNoRows:
@@ -73,7 +73,7 @@ func getAllNotes() ([]models.Note, error) {
 		var note models.Note
 
 		// unmarshal the row object to user
-		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content)
+		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &note.Viewers, &note.Editors)
 
 		if err != nil {
 			log.Fatalf("Unable to scan the row. %v", err)
@@ -98,10 +98,10 @@ func updateNote(id int64, note models.Note) int64 {
 	defer db.Close()
 
 	// create the update sql query
-	sqlStatement := `UPDATE notes SET title=$2, description=$3, contents=$4 WHERE id=$1`
+	sqlStatement := `UPDATE notes SET title=$2, description=$3, contents=$4, owner=$5,viewers=$6,editors=$7  WHERE id=$1`
 
 	// execute the sql statement
-	res, err := db.Exec(sqlStatement, id, note.Title, note.Desc, note.Content)
+	res, err := db.Exec(sqlStatement, id, note.Title, note.Desc, note.Content, &note.Owner, &note.Viewers, &note.Editors)
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
@@ -158,12 +158,12 @@ func insertNote(note models.Note) int64 {
 	defer db.Close()
 	// create the insert sql query
 	// returning id will return the id of the inserted note
-	sqlStatement := `INSERT INTO notes (title, description, contents) VALUES ($1, $2, $3) RETURNING id`
+	sqlStatement := `INSERT INTO notes (title, description, contents, owner, viewers, editors) VALUES ($1, $2, $3,$4,$5,$6) RETURNING id`
 	// the inserted id will store in this id
 	var id int64
 	// execute the sql statement
 	// Scan function will save the insert id in the id
-	err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Title).Scan(&id)
+	err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Title, note.Owner, note.Viewers, note.Editors).Scan(&id)
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
@@ -416,5 +416,48 @@ func getSpecificNotes(searchType int) ([]models.Note, error) {
 		notes = append(notes, note)
 
 	}
+	return notes, err
+}
+
+// get one user from the DB by its userid
+func getAllNotesUserHasAccessTo(id int) ([]models.Note, error) {
+	// create the postgres db connection
+	db := createConnection()
+
+	// close the db connection
+	defer db.Close()
+
+	var notes []models.Note
+
+	// create the select sql query
+	sqlStatement := `SELECT * FROM notes WHERE editors @> ARRAY[$1]::int[]`
+	//select * from users where id = ANY(ARRAY [1,2])
+	// execute the sql statement
+	rows, err := db.Query(sqlStatement, id)
+
+	if err != nil {
+		log.Fatalf("Unable to execute the query. %v", err)
+	}
+
+	// close the statement
+	defer rows.Close()
+
+	// iterate over the rows
+	for rows.Next() {
+		var note models.Note
+
+		// unmarshal the row object to user
+		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &note.Viewers, &note.Editors)
+
+		if err != nil {
+			log.Fatalf("Unable to scan the row. %v", err)
+		}
+
+		// append the user in the users slice
+		notes = append(notes, note)
+
+	}
+
+	// return empty user on error
 	return notes, err
 }

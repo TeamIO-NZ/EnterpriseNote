@@ -51,6 +51,7 @@ func (server Server) Start() {
 //HandleRequests run me to make the server work
 func (server Server) HandleRequests() {
 
+	//createTable()
 	r := mux.NewRouter().StrictSlash(true)
 
 	r.HandleFunc("/api/v1/notes", server.ReturnAllNotes).Methods("GET", "OPTIONS")
@@ -64,6 +65,8 @@ func (server Server) HandleRequests() {
 	r.HandleFunc("/api/v1/user", server.CreateNewUser).Methods("POST", "OPTIONS")
 	r.HandleFunc("/api/v1/user/{id}", server.UpdateUser).Methods("PUT", "OPTIONS")
 	r.HandleFunc("/api/v1/user/{id}", server.DeleteUser).Methods("DELETE", "OPTIONS")
+
+	r.HandleFunc("/api/v1/usersnotes/{id}", server.GetAllNotesUserHasAccessTo).Methods("GET", "OPTIONS")
 
 	r.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect)).Methods("GET", "OPTIONS")
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))
@@ -105,8 +108,24 @@ func createTable() {
 	db := createConnection()
 	//prepares to close database when done
 	defer db.Close()
+
 	//create the base notes table for if it doesn't exist
-	sqlStatement := `CREATE TABLE IF NOT EXISTS users (
+	sqlStatement := `DROP TABLE notes;`
+	//execute the sql statement and return a response
+	res, err := db.Exec(sqlStatement)
+	if err != nil {
+		log.Fatalf("Unable to execute the query. %v", err)
+	}
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `DROP TABLE users;`
+	//execute the sql statement and return a response
+	res, err = db.Exec(sqlStatement)
+	if err != nil {
+		log.Fatalf("Unable to execute the query. %v", err)
+	}
+
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `CREATE TABLE IF NOT EXISTS users (
 		id SERIAL PRIMARY KEY,
 		name TEXT,
 		password TEXT,
@@ -114,7 +133,7 @@ func createTable() {
 	);`
 
 	//execute the sql statement and return a response
-	res, err := db.Exec(sqlStatement)
+	res, err = db.Exec(sqlStatement)
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
 	}
@@ -125,15 +144,20 @@ func createTable() {
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS notes (
 			id SERIAL PRIMARY KEY,
-			name TEXT,
-			password TEXT,
-			email TEXT
+			title TEXT,
+			description TEXT,
+			contents TEXT,
+			owner INT,
+			viewers INT[],
+			editors INT[],
+			FOREIGN KEY (owner)	REFERENCES users (id)
 		);`
 	//execute the sql statement and return a response
 	res, err = db.Exec(sqlStatement)
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
 	}
+
 	//print the response maybe
 	fmt.Printf("%s\n ", res)
 }
