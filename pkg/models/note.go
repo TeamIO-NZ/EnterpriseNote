@@ -9,8 +9,4 @@ type Note struct {
 	Owner   int     `json:"Owner"`
 	Viewers []uint8 `json:"Viewers"`
 	Editors []uint8 `json:"Editors"`
-
-	/*	owner INT,
-		viewers INT[],
-		editors INT[],*/
 }
