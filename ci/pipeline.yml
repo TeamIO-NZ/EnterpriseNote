@@ -13,6 +13,14 @@ resources:
     source:
       repository: golang
       tag: 1.15
+  
+  - name: gh-release
+    type: github-release
+    source:
+      owner: TeamIO-nz
+      repository: EnterpriseNote
+      access_token: ((release-key))
+
 
 jobs:
   - name: golang-1.15.x
@@ -52,7 +60,7 @@ jobs:
       - task: notify-success
         config:
           platform: linux
-          image_resource: &apline
+          image_resource: &alpine
             type: docker-image
             source:
               repository: alpine
@@ -65,15 +73,16 @@ jobs:
             args:
             - -c
             - |
-              cd go/src/go.iosoftworks.com/EnterpriseNote
-              ./ci/notify_discord.sh "((hook-url))" enterprise-note error
+              apk add --no-cache --upgrade curl
+
+              ./go/src/go.iosoftworks.com/EnterpriseNote/ci/notify_discord.sh "((hook-url))" enterprise-note success
         
     on_abort:
       do:
       - task: notify-abort
         config:
           platform: linux
-          image_resource: *apline
+          image_resource: *alpine
           inputs:
             - name: enterprise-note-git
               path: go/src/go.iosoftworks.com/EnterpriseNote/
@@ -82,14 +91,15 @@ jobs:
             args:
             - -c
             - |
-              cd go/src/go.iosoftworks.com/EnterpriseNote
-              ./ci/notify_discord.sh "((hook-url))" enterprise-note error
+              apk add --no-cache --upgrade curl
+
+              ./go/src/go.iosoftworks.com/EnterpriseNote/ci/notify_discord.sh "((hook-url))" enterprise-note abort
     on_failure:
       do:
       - task: notify-failure
         config:
           platform: linux
-          image_resource: *apline
+          image_resource: *alpine
           inputs:
             - name: enterprise-note-git
               path: go/src/go.iosoftworks.com/EnterpriseNote/
@@ -98,14 +108,15 @@ jobs:
             args:
             - -c
             - |
-              cd go/src/go.iosoftworks.com/EnterpriseNote
-              ./ci/notify_discord.sh "((hook-url))" enterprise-note error
+              apk add --no-cache --upgrade curl
+
+              ./go/src/go.iosoftworks.com/EnterpriseNote/ci/notify_discord.sh "((hook-url))" enterprise-note failure
     on_error:
       do:
       - task: notify-error
         config:
           platform: linux
-          image_resource: *apline
+          image_resource: *alpine
           inputs:
             - name: enterprise-note-git
               path: go/src/go.iosoftworks.com/EnterpriseNote/
@@ -114,5 +125,65 @@ jobs:
             args:
             - -c
             - |
+              apk add --no-cache --upgrade curl
+
+              ./go/src/go.iosoftworks.com/EnterpriseNote/ci/notify_discord.sh "((hook-url))" enterprise-note error
+  - name: publish
+    plan:
+      - get: enterprise-note-git
+        trigger: true
+        passed:
+        - golang-1.15.x
+      - get: golang-1.15.x-image
+        trigger: true
+        passed:
+        - golang-1.15.x
+      - task: build-linux
+        image: golang-1.15.x-image
+        config:
+          platform: linux
+          outputs:
+          - name: linux-output
+            path: EnterpriseNote
+          params:
+            GO111MODULE: "on"
+          run: &compile
+            path: sh
+            args:
+            - -c
+            - |
+              GOPATH=$PWD/go
               cd go/src/go.iosoftworks.com/EnterpriseNote
-              ./ci/notify_discord.sh "((hook-url))" enterprise-note error
+
+              go mod download
+              go build
+      - task: build-darwin
+        image: golang-1.15.x-image
+        config:
+          platform: darwin
+          outputs:
+          - name: darwin-output
+            path: EnterpriseNote.app
+          run: *compile
+      - task: build-windows
+        image: golang-1.15.x-image
+        config:
+          outputs:
+          - name: windows-output
+            path: EnterpriseNote.exe
+          platform: windows
+          run: *compile
+      - put: gh-release
+        inputs:
+          - linux-output
+          - darwin-output
+          - windows-output
+        params: 
+          globs:
+            - EnterpriseNote
+            - EnterpriseNote.app
+            - EnterpriseNote.exe
+          pre_release: true
+
+
+        
