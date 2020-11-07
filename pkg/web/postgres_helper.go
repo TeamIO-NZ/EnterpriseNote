@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" //its libpq
 	"go.iosoftworks.com/EnterpriseNote/pkg/models"
 )
 
@@ -67,7 +67,7 @@ func PingOrPanic(db *sql.DB) {
 	}
 }
 
-//Execute does statemetns
+//Execute does statements
 //TODO maybe make this return a response
 func Execute(db *sql.DB, sqlStatement string) {
 	//execute the sql statement and return a response

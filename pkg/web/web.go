@@ -41,10 +41,7 @@ func (server Server) Start() {
 		server.config.Port = port
 		//zap.S().Warn("No webserver port config detected, using 8080.")
 	}
-	// Notes = []models.Note{
-	// 	models.Note{ID: "1", Title: "Hello", Desc: "Article Description", Content: "Article Content"},
-	// 	models.Note{ID: "2", Title: "Hello 2", Desc: "Article Description", Content: "Article Content"},
-	// }
+
 	server.db = createConnection()
 	server.HandleRequests()
 	server.db.Close()
@@ -105,8 +102,7 @@ func createConnection() *sql.DB {
 	return db
 }
 
-//TODO function for dropping and rebuilding tables.
-//TODO function for loading in a csv for a temp table or something
+//populates database with fake data
 func createTable() {
 	//creates database connection
 	db := createConnection()
@@ -116,20 +112,11 @@ func createTable() {
 	//create the base notes table for if it doesn't exist
 	sqlStatement := `DROP TABLE IF EXISTS notes;`
 	Execute(db, sqlStatement)
-	// //execute the sql statement and return a response
-	// res, err := db.Exec(sqlStatement)
-	// if err != nil {
-	// 	log.Fatalf("Unable to execute the query. %v", err)
-	// }
+
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `DROP TABLE IF EXISTS users;`
 	//execute the sql statement and return a response
 	Execute(db, sqlStatement)
-
-	// res, err; = db.Exec(sqlStatement)
-	// if err != nil {
-	// 	log.Fatalf("Unable to execute the query. %v", err)
-	// }
 
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS users (
@@ -141,15 +128,6 @@ func createTable() {
 	);`
 	Execute(db, sqlStatement)
 
-	//execute the sql statement and return a response
-	// res, err = db.Exec(sqlStatement)
-	// if err != nil {
-	// 	log.Fatalf("Unable to execute the query. %v", err)
-	// }
-	//print the response maybe
-	//fmt.Printf("%s\n ", res)
-
-	//TODO rebuild this table function
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS notes (
 			id SERIAL PRIMARY KEY,
@@ -163,21 +141,6 @@ func createTable() {
 		);`
 	Execute(db, sqlStatement)
 
-	//execute the sql statement and return a response
-	// res, err = db.Exec(sqlStatement)
-	// if err != nil {
-	// 	log.Fatalf("Unable to execute the query. %v", err)
-	// }
-
-	// sqlStatement = `
-	// insert into users (id,name,password,email) values (0,'Lithial','1234','me@james.me');
-	// insert into users (id,name,password,email) values (1,'Joe','1234','you@james.me');
-	// insert into users (id,name,password,email) values (2,'Peter','1234','us@james.me');
-	// insert into users (id,name,password,email) values (3,'Arran','1234','re@james.me');
-	// insert into users (id,name,password,email) values (4,'Finn','1234','la@james.me');
-	// insert into users (id,name,password,email) values (5,'Sam','1234','de@james.me');
-	// insert into users (id,name,password,email) values (6,'Sam','1234','de@james.me');
-	// `
 	// Execute(db, sqlStatement)
 	Users := []models.User{
 		models.User{
