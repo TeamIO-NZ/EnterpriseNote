@@ -150,8 +150,8 @@ func createTable() {
 			description TEXT,
 			contents TEXT,
 			owner INT,
-			viewers INT[],
-			editors INT[],
+			viewers integer[],
+			editors integer[],
 			FOREIGN KEY (owner)	REFERENCES users (id)
 		);`
 	//execute the sql statement and return a response

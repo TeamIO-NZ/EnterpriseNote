@@ -5,7 +5,10 @@ import (
 	b64 "encoding/base64"
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
 
+	"github.com/lib/pq"
 	"go.iosoftworks.com/EnterpriseNote/pkg/models"
 )
 
@@ -102,7 +105,7 @@ func updateNote(id int64, note models.Note) int64 {
 	sqlStatement := `UPDATE notes SET title=$2, description=$3, contents=$4, owner=$5,viewers=$6,editors=$7  WHERE id=$1`
 
 	// execute the sql statement
-	res, err := db.Exec(sqlStatement, id, note.Title, note.Desc, note.Content, &note.Owner, &note.Viewers, &note.Editors)
+	res, err := db.Exec(sqlStatement, id, note.Title, note.Desc, note.Content, &note.Owner, pq.Array(&note.Viewers), pq.Array(&note.Editors))
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
@@ -164,7 +167,7 @@ func insertNote(note models.Note) int64 {
 	var id int64
 	// execute the sql statement
 	// Scan function will save the insert id in the id
-	err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Title, note.Owner, note.Viewers, note.Editors).Scan(&id)
+	err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Title, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors)).Scan(&id)
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
@@ -475,7 +478,11 @@ func getAllNotesUserHasAccessTo(id int) ([]models.Note, error) {
 	var notes []models.Note
 
 	// create the select sql query
-	sqlStatement := `SELECT * FROM notes WHERE editors @> ARRAY[$1]::int[]`
+	sqlStatement := `SELECT * FROM notes 
+	WHERE 
+	editors @> ARRAY[$1]::int[]
+	or viewers @> ARRAY[$1]::int[]
+	or owner = $1`
 	//select * from users where id = ANY(ARRAY [1,2])
 	// execute the sql statement
 	rows, err := db.Query(sqlStatement, id)
@@ -491,13 +498,46 @@ func getAllNotesUserHasAccessTo(id int) ([]models.Note, error) {
 	for rows.Next() {
 		var note models.Note
 
+		var viewers string
+		var editors string
 		// unmarshal the row object to user
-		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &note.Viewers, &note.Editors)
-
+		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &viewers, &editors)
 		if err != nil {
 			log.Fatalf("Unable to scan the row. %v", err)
 		}
 
+		//convert the weird string to an int array
+		// fmt.Println(viewers)
+		// fmt.Println(editors)
+		//remove the curly brackets without my brain hating regex to much
+		viewers = strings.Replace(viewers, "{", "", -1)
+		viewers = strings.Replace(viewers, "}", "", -1)
+		//fmt.Println(viewers)
+		//split the string by the comma
+		v := strings.Split(viewers, ",")
+		//loop the resulting array and convert every item to a number
+		for n := range v {
+			str, err := strconv.Atoi(fmt.Sprint(n))
+			//crash if its not a number
+			if err != nil {
+				log.Println("Oh god its broken")
+			}
+			//append it to the array
+			note.Viewers = append(note.Viewers, str)
+		}
+		//TODO make this a function because i do it twice
+		editors = strings.Replace(viewers, "{", "", -1)
+		editors = strings.Replace(viewers, "}", "", -1)
+		fmt.Println(editors)
+		e := strings.Split(editors, ",")
+		for n := range e {
+			str, err := strconv.Atoi(fmt.Sprint(n))
+			if err != nil {
+				log.Println("Oh god its broken")
+			}
+			note.Editors = append(note.Editors, str)
+
+		}
 		// append the user in the users slice
 		notes = append(notes, note)
 
