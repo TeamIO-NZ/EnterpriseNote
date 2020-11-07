@@ -114,6 +114,7 @@ func getUser(id int64, db *sql.DB) models.User {
 func getUserByName(name string, db *sql.DB) models.User {
 	// check the connection
 	PingOrPanic(db)
+	//fmt.Println("searching user by name")
 	// create the select sql query
 	sqlStatement := `SELECT * FROM users WHERE name=$1`
 
@@ -185,11 +186,23 @@ func insertUser(user models.User, db *sql.DB) int64 {
 	// check the connection
 	PingOrPanic(db)
 
+	var id int64
+	canInsert := true
+	u := getUserByName(string(user.Name), db)
+
+	if u.Name == user.Name {
+		canInsert = false
+		log.Printf("This user name is already taken\n")
+	}
+
 	// create the insert sql query
 	// returning id will return the id of the inserted note
-	sqlStatement := `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id`
 	// the inserted id will store in this id
-	id := QueryRowForID(db, sqlStatement, &user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
+
+	if canInsert == true {
+		sqlStatement := `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id`
+		id = QueryRowForID(db, sqlStatement, &user.Name, &user.Password, &user.Email)
+	}
 	return id
 }
 
@@ -271,26 +284,19 @@ func getSpecificNotes(searchType int, db *sql.DB) ([]models.Note, error) {
 func checkLogin(name string, password string, db *sql.DB) models.APIResponse {
 	// check the connection
 	PingOrPanic(db)
-
+	//build the statements
 	sqlStatement := `SELECT * FROM users WHERE name = $1 and password = $2`
 	// execute the sql statement
 	rows := QueryRowForType(db, sqlStatement, name, password)
+	//build the users array
 	var users []models.User
-
-	//TODO theoretically this could return more than one user
-	// for rows.Next() {
-	// 	user := models.ParseSingleUser(rows)
-	// 	// append the user in the users slice
-	// 	users = append(users, user)
-	// 	numOfUsers := len(users)
-	// 	if numOfUsers > 1 {
-	// 		log.Printf("More than one user with this name|password combo. please investigate")
-	// 	}
-
-	// }
+	//populate the users array
 	users = models.ParseUserArray(rows)
 	//populate the response
 	//TODO implement checks for multiple users with the same user and password
+	if len(users) > 1 {
+
+	}
 	var api models.APIResponse
 	api.Code = 200
 	api.Message = "Successful User Acquired"

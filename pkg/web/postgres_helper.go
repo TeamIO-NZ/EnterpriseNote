@@ -46,7 +46,7 @@ func QueryRowForType(db *sql.DB, sqlStatement string, args ...interface{}) *sql.
 		}
 		return row
 	} else {
-		log.Printf("Doing multiArgQuery")
+		//log.Printf("Doing multiArgQuery")
 		if len(args) > 2 {
 			panic("Oh god. to many args in Query for row type")
 		}

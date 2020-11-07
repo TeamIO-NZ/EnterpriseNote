@@ -169,18 +169,73 @@ func createTable() {
 	// 	log.Fatalf("Unable to execute the query. %v", err)
 	// }
 
-	//print the response maybe
-	//fmt.Printf("%s\n ", res)
+	// sqlStatement = `
+	// insert into users (id,name,password,email) values (0,'Lithial','1234','me@james.me');
+	// insert into users (id,name,password,email) values (1,'Joe','1234','you@james.me');
+	// insert into users (id,name,password,email) values (2,'Peter','1234','us@james.me');
+	// insert into users (id,name,password,email) values (3,'Arran','1234','re@james.me');
+	// insert into users (id,name,password,email) values (4,'Finn','1234','la@james.me');
+	// insert into users (id,name,password,email) values (5,'Sam','1234','de@james.me');
+	// insert into users (id,name,password,email) values (6,'Sam','1234','de@james.me');
+	// `
+	// Execute(db, sqlStatement)
+	Users := []models.User{
+		models.User{
+			Name:     "Lithial",
+			Password: "1234",
+			Email:    "me@james.me",
+		},
+		models.User{
+			Name:     "Joe",
+			Password: "1234",
+			Email:    "you@james.me",
+		},
+		models.User{
+			Name:     "Peter",
+			Password: "1234",
+			Email:    "us@james.me",
+		},
+		models.User{
+			Name:     "Arran",
+			Password: "1234",
+			Email:    "re@james.me",
+		},
+		models.User{
+			Name:     "Finn",
+			Password: "1234",
+			Email:    "de@james.me",
+		},
+		models.User{
+			Name:     "Sam",
+			Password: "1234",
+			Email:    "la@james.me",
+		},
+		models.User{
+			Name:     "Sam",
+			Password: "1234",
+			Email:    "ke@james.me",
+		},
+	}
 
-	sqlStatement = `
-	insert into users (id,name,password,email) values (0,'Lithial','1234','me@james.me');
-	insert into users (id,name,password,email) values (1,'Joe','1234','you@james.me');
-	insert into users (id,name,password,email) values (2,'Peter','1234','us@james.me');
-	insert into users (id,name,password,email) values (3,'Arran','1234','re@james.me');
-	insert into users (id,name,password,email) values (4,'Finn','1234','la@james.me');
-	insert into users (id,name,password,email) values (5,'Sam','1234','de@james.me');
-	`
-	Execute(db, sqlStatement)
+	for _, user := range Users {
+		//fmt.Println(user.Name)
+		var id int64
+		canInsert := true
+		u := getUserByName(string(user.Name), db)
+		if u.Name == user.Name {
+			canInsert = false
+			log.Printf("This user name is already taken\n")
+		}
+		if canInsert == true {
+			sqlStatement := `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id`
+			err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email).Scan(&id)
+			//TODO make this error message less bad
+			if err != nil {
+				log.Printf("Unable to execute the query. %v\n", err)
+			}
+			fmt.Printf("Inserted a single record %v\n", id)
+		}
+	}
 
 	Notes = []models.Note{
 		models.Note{

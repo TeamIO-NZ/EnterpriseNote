@@ -11,8 +11,8 @@ import (
 //User struct declaration
 type User struct {
 	gorm.Model
-	Name     string
-	Email    string `gorm:"type:varchar(100);unique_index"`
+	Name     string `json:"name"`
+	Email    string `json:"type:varchar(100);unique_index"`
 	Gender   string `json:"Gender"`
 	Password string `json:"Password"`
 	Token    []byte `json:"Token"`
@@ -22,7 +22,7 @@ type User struct {
 func ParseSingleUser(row *sql.Rows) User {
 	var user User
 
-	fmt.Println("scanning a row of user stuff. awaiting crash")
+	//fmt.Println("scanning a row of user stuff. awaiting crash")
 	if row.Next() {
 		// unmarshal the row object to user
 		err := row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
@@ -37,9 +37,9 @@ func ParseSingleUser(row *sql.Rows) User {
 func ParseUserArray(rows *sql.Rows) []User {
 	var user User
 	var users []User
-	fmt.Println("Begin scanning user rows")
+	//fmt.Println("Begin scanning user rows")
 	for rows.Next() {
-		fmt.Println("scanning a row of note stuff. awaiting crash")
+		fmt.Println("scanning a row of user stuff. awaiting crash")
 		// unmarshal the row object to user
 		err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
 		if err != nil {
