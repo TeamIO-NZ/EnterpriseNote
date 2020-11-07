@@ -200,7 +200,42 @@ func getUser(id int64) (models.User, error) {
 	row := db.QueryRow(sqlStatement, id)
 
 	// unmarshal the row object to user
-	err := row.Scan(&user.ID, &user.Name, &user.Password, &user.Email)
+	err := row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
+
+	switch err {
+	case sql.ErrNoRows:
+		fmt.Println("No rows were returned!")
+		return user, nil
+	case nil:
+		return user, nil
+	default:
+		log.Fatalf("Unable to scan the row. %v", err)
+	}
+
+	// return empty user on error
+	return user, err
+}
+
+//getNote
+// get one user from the DB by its userid
+func getUserByName(name string) (models.User, error) {
+	// create the postgres db connection
+	db := createConnection()
+
+	// close the db connection
+	defer db.Close()
+
+	// create a user of models.User type
+	var user models.User
+
+	// create the select sql query
+	sqlStatement := `SELECT * FROM users WHERE name=$1`
+
+	// execute the sql statement
+	row := db.QueryRow(sqlStatement, name)
+
+	// unmarshal the row object to user
+	err := row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
 
 	switch err {
 	case sql.ErrNoRows:

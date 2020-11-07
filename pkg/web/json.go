@@ -197,6 +197,31 @@ func (server Server) ReturnSingleUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(note)
 }
 
+//ReturnSingleUser Get Notes in json format by username
+//use mux to get us single notes
+func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Request) {
+	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	//we will need to parse the path parameters
+	vars := mux.Vars(r)
+	// we will need to extract the `id` of the article we
+	// wish to return
+	// convert the id type from string to int
+	name := vars["username"]
+
+	// call the getUser function with user id to retrieve a single user
+	note, err := getUserByName(name)
+
+	if err != nil {
+		log.Fatalf("Unable to get note. %v", err)
+	}
+
+	// send the response
+	json.NewEncoder(w).Encode(note)
+}
+
 //CreateNewUser Create Note in json format
 func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 	// get the body of our POST request
@@ -326,6 +351,7 @@ func (server Server) GetAllNotesUserHasAccessTo(w http.ResponseWriter, r *http.R
 	if err != nil {
 		log.Fatalf("Unable to convert the string into an int. %v", err)
 	}
+	//var notes []models.Note
 	//get specific notes in the database. returns the notes and any errors
 	//input is 1-5 based on what notes we want. More functions to come maybe?
 	notes, err := getAllNotesUserHasAccessTo(id)
