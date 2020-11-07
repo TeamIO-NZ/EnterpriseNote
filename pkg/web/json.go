@@ -22,11 +22,8 @@ func (server Server) ReturnAllNotes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 
 	//get all the notes in the database. returns the notes and any errors
-	notes, err := getAllNotes(server.db)
+	notes := getAllNotes(server.db)
 
-	if err != nil {
-		log.Fatalf("Unable to get all notes/ %v", err)
-	}
 	// send all the notes as response
 	json.NewEncoder(w).Encode(notes)
 }
@@ -49,11 +46,7 @@ func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to convert the string into int.  %v", err)
 	}
 	// call the getUser function with user id to retrieve a single user
-	note, err := getNote(int64(id), server.db)
-
-	if err != nil {
-		log.Fatalf("Unable to get note. %v", err)
-	}
+	note := getNote(int64(id), server.db)
 
 	// send the response
 	json.NewEncoder(w).Encode(note)
@@ -160,11 +153,8 @@ func (server Server) ReturnAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 
 	//get all the notes in the database. returns the notes and any errors
-	users, err := getAllUsers(server.db)
+	users := getAllUsers(server.db)
 
-	if err != nil {
-		log.Fatalf("Unable to get all notes/ %v", err)
-	}
 	// send all the notes as response
 	json.NewEncoder(w).Encode(users)
 }
@@ -187,11 +177,7 @@ func (server Server) ReturnSingleUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to convert the string into int.  %v", err)
 	}
 	// call the getUser function with user id to retrieve a single user
-	note, err := getUser(int64(id), server.db)
-
-	if err != nil {
-		log.Fatalf("Unable to get note. %v", err)
-	}
+	note := getUser(int64(id), server.db)
 
 	// send the response
 	json.NewEncoder(w).Encode(note)
@@ -212,11 +198,7 @@ func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Reque
 	name := vars["username"]
 
 	// call the getUser function with user id to retrieve a single user
-	note, err := getUserByName(name, server.db)
-
-	if err != nil {
-		log.Fatalf("Unable to get note. %v", err)
-	}
+	note := getUserByName(name, server.db)
 
 	// send the response
 	json.NewEncoder(w).Encode(note)
@@ -354,11 +336,8 @@ func (server Server) GetAllNotesUserHasAccessTo(w http.ResponseWriter, r *http.R
 	//var notes []models.Note
 	//get specific notes in the database. returns the notes and any errors
 	//input is 1-5 based on what notes we want. More functions to come maybe?
-	notes, err := getAllNotesUserHasAccessTo(id, server.db)
+	notes := getAllNotesUserHasAccessTo(id, server.db)
 
-	if err != nil {
-		log.Fatalf("Unable to get all notes/ %v", err)
-	}
 	// send all the notes as response
 	json.NewEncoder(w).Encode(notes)
 
@@ -382,11 +361,8 @@ func (server Server) Login(w http.ResponseWriter, r *http.Request) {
 	//TODO: generate api token
 	//TODO: return api token
 	//create the data
-	var data, err = checkLogin(username, password, server.db)
-	//check for errors
-	if err != nil {
-		log.Printf("Unable to get user login/ %v", err)
-	}
+	var data = checkLogin(username, password, server.db)
+
 	//encode the data
 	json.NewEncoder(w).Encode(data)
 	// _ = json.NewEncoder(w).Encode(models.APIResponse{

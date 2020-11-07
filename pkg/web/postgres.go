@@ -2,8 +2,6 @@ package web
 
 import (
 	"database/sql"
-	b64 "encoding/base64"
-	"fmt"
 	"log"
 
 	"github.com/lib/pq"
@@ -14,16 +12,9 @@ import (
 
 //getNote
 // get one user from the DB by its userid
-func getNote(id int64, db *sql.DB) (models.Note, error) {
-	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
+func getNote(id int64, db *sql.DB) models.Note {
 
-	// close the db connection
-	//defer db.Close()
-
+	PingOrPanic(db)
 	// create a user of models.User type
 	var note models.Note
 
@@ -31,35 +22,18 @@ func getNote(id int64, db *sql.DB) (models.Note, error) {
 	sqlStatement := `SELECT * FROM notes WHERE id=$1`
 
 	// execute the sql statement
-	row := db.QueryRow(sqlStatement, id)
-
-	// unmarshal the row object to user
-	err = row.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &note.Viewers, &note.Editors)
-
-	switch err {
-	case sql.ErrNoRows:
-		fmt.Println("No rows were returned!")
-		return note, nil
-	case nil:
-		return note, nil
-	default:
-		log.Fatalf("Unable to scan the row. %v", err)
-	}
+	row := QueryRowForType(db, sqlStatement, id)
+	//scan the note properly
+	note = models.ParseSingleNote(row)
 
 	// return empty user on error
-	return note, err
+	return note
 }
 
 // get one user from the DB by its userid
-func getAllNotes(db *sql.DB) ([]models.Note, error) {
-	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
+func getAllNotes(db *sql.DB) []models.Note {
 
-	// close the db connection
-	//defer db.Close()
+	PingOrPanic(db)
 
 	var notes []models.Note
 
@@ -67,57 +41,24 @@ func getAllNotes(db *sql.DB) ([]models.Note, error) {
 	sqlStatement := `SELECT * FROM notes`
 
 	// execute the sql statement
-	rows, err := db.Query(sqlStatement)
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
-
-	// close the statement
-	defer rows.Close()
-
-	// iterate over the rows
-	//for rows.Next() {
+	row := QueryRowForType(db, sqlStatement)
+	//close the statement
+	defer row.Close()
 
 	// append the user in the users slice
-	notes = models.ParseNoteArray(rows)
+	notes = models.ParseNoteArray(row)
 
-	//}
-
-	// return empty user on error
-	return notes, err
+	return notes
 }
 
 // update user in the DB
 func updateNote(id int64, note models.Note, db *sql.DB) int64 {
 
-	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	// close the db connection
-	//defer db.Close()
-
+	PingOrPanic(db)
 	// create the update sql query
 	sqlStatement := `UPDATE notes SET title=$2, description=$3, contents=$4, owner=$5,viewers=$6,editors=$7  WHERE id=$1`
 
-	// execute the sql statement
-	res, err := db.Exec(sqlStatement, id, note.Title, note.Desc, note.Content, &note.Owner, pq.Array(&note.Viewers), pq.Array(&note.Editors))
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
-
-	// check how many rows affected
-	rowsAffected, err := res.RowsAffected()
-
-	if err != nil {
-		log.Fatalf("Error while checking the affected rows. %v", err)
-	}
-
-	fmt.Printf("Total rows/record affected %v\n", rowsAffected)
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, note.Title, note.Desc, note.Content, &note.Owner, pq.Array(&note.Viewers), pq.Array(&note.Editors))
 
 	return rowsAffected
 }
@@ -125,60 +66,24 @@ func updateNote(id int64, note models.Note, db *sql.DB) int64 {
 // delete user in the DB
 func deleteNote(id int64, db *sql.DB) int64 {
 
-	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
+	PingOrPanic(db)
 
-	// close the db connection
-	//defer db.Close()
-
-	// create the delete sql query
+	// // create the delete sql query
 	sqlStatement := `DELETE FROM notes WHERE id=$1`
 
-	// execute the sql statement
-	res, err := db.Exec(sqlStatement, id)
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
-
-	// check how many rows affected
-	rowsAffected, err := res.RowsAffected()
-
-	if err != nil {
-		log.Fatalf("Error while checking the affected rows. %v", err)
-	}
-
-	fmt.Printf("Total rows/record affected %v\n", rowsAffected)
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id)
 
 	return rowsAffected
 }
 
 //insert note into the database
 func insertNote(note models.Note, db *sql.DB) int64 {
-	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-	// close the db connection
-	//defer db.Close()
+	PingOrPanic(db)
 	// create the insert sql query
 	// returning id will return the id of the inserted note
 	sqlStatement := `INSERT INTO notes (title, description, contents, owner, viewers, editors) VALUES ($1, $2, $3,$4,$5,$6) RETURNING id`
 	// the inserted id will store in this id
-	var id int64
-	// execute the sql statement
-	// Scan function will save the insert id in the id
-	err = db.QueryRow(sqlStatement, note.Title, note.Desc, note.Title, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors)).Scan(&id)
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
-
-	fmt.Printf("Inserted a single record %v\n", id)
+	id := QueryRowForID(db, sqlStatement, note.Title, note.Desc, note.Title, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
 
 	// return the inserted id
 	return id
@@ -188,90 +93,44 @@ func insertNote(note models.Note, db *sql.DB) int64 {
 
 //getNote
 // get one user from the DB by its userid
-func getUser(id int64, db *sql.DB) (models.User, error) {
-	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	// close the db connection
-	//defer db.Close()
-
-	// create a user of models.User type
-	var user models.User
+func getUser(id int64, db *sql.DB) models.User {
+	PingOrPanic(db)
 
 	// create the select sql query
 	sqlStatement := `SELECT * FROM users WHERE id=$1`
 
 	// execute the sql statement
-	row := db.QueryRow(sqlStatement, id)
+	row := QueryRowForType(db, sqlStatement, id)
 
 	// unmarshal the row object to user
-	err = row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
-
-	switch err {
-	case sql.ErrNoRows:
-		fmt.Println("No rows were returned!")
-		return user, nil
-	case nil:
-		return user, nil
-	default:
-		log.Fatalf("Unable to scan the row. %v", err)
-	}
+	user := models.ParseSingleUser(row)
 
 	// return empty user on error
-	return user, err
+	return user
 }
 
 //getNote
 // get one user from the DB by its userid
-func getUserByName(name string, db *sql.DB) (models.User, error) {
+func getUserByName(name string, db *sql.DB) models.User {
 	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	// close the db connection
-	//defer db.Close()
-
-	// create a user of models.User type
-	var user models.User
-
+	PingOrPanic(db)
 	// create the select sql query
 	sqlStatement := `SELECT * FROM users WHERE name=$1`
 
 	// execute the sql statement
-	row := db.QueryRow(sqlStatement, name)
+	row := QueryRowForType(db, sqlStatement, name)
 
 	// unmarshal the row object to user
-	err = row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
-
-	switch err {
-	case sql.ErrNoRows:
-		fmt.Println("No rows were returned!")
-		return user, nil
-	case nil:
-		return user, nil
-	default:
-		log.Fatalf("Unable to scan the row. %v", err)
-	}
+	user := models.ParseSingleUser(row)
 
 	// return empty user on error
-	return user, err
+	return user
 }
 
 // get one user from the DB by its userid
-func getAllUsers(db *sql.DB) ([]models.User, error) {
+func getAllUsers(db *sql.DB) []models.User {
 	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	// close the db connection
-	//defer db.Close()
+	PingOrPanic(db)
 
 	var users []models.User
 
@@ -279,65 +138,29 @@ func getAllUsers(db *sql.DB) ([]models.User, error) {
 	sqlStatement := `SELECT * FROM users`
 
 	// execute the sql statement
-	rows, err := db.Query(sqlStatement)
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
-
-	// close the statement
-	defer rows.Close()
+	rows := QueryRowForType(db, sqlStatement)
 
 	// iterate over the rows
 	for rows.Next() {
-		var user models.User
-
-		// unmarshal the row object to user
-		err = rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email)
-
-		if err != nil {
-			log.Fatalf("Unable to scan the row. %v", err)
-		}
-
+		user := models.ParseSingleUser(rows)
 		// append the user in the users slice
 		users = append(users, user)
-
 	}
-
 	// return empty user on error
-	return users, err
+	return users
 }
 
 // update user in the DB
 func updateUser(id int64, user models.User, db *sql.DB) int64 {
 
 	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	// close the db connection
-	//defer db.Close()
+	PingOrPanic(db)
 
 	// create the update sql query
 	sqlStatement := `UPDATE users SET name=$2, email=$3, password=$4 WHERE id=$1`
 
-	// execute the sql statement
-	res, err := db.Exec(sqlStatement, id, user.Name, user.Email, user.Password)
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
-
 	// check how many rows affected
-	rowsAffected, err := res.RowsAffected()
-
-	if err != nil {
-		log.Fatalf("Error while checking the affected rows. %v", err)
-	}
-
-	fmt.Printf("Total rows/record affected %v\n", rowsAffected)
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, user.Name, user.Email, user.Password)
 
 	return rowsAffected
 }
@@ -346,32 +169,13 @@ func updateUser(id int64, user models.User, db *sql.DB) int64 {
 func deleteUser(id int64, db *sql.DB) int64 {
 
 	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	// close the db connection
-	//defer db.Close()
+	PingOrPanic(db)
 
 	// create the delete sql query
 	sqlStatement := `DELETE FROM users WHERE id=$1`
 
-	// execute the sql statement
-	res, err := db.Exec(sqlStatement, id)
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
-
 	// check how many rows affected
-	rowsAffected, err := res.RowsAffected()
-
-	if err != nil {
-		log.Fatalf("Error while checking the affected rows. %v", err)
-	}
-
-	fmt.Printf("Total rows/record affected %v\n", rowsAffected)
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id)
 
 	return rowsAffected
 }
@@ -379,17 +183,13 @@ func deleteUser(id int64, db *sql.DB) int64 {
 //insert note into the database
 func insertUser(user models.User, db *sql.DB) int64 {
 	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-	// close the db connection
-	//defer db.Close()
+	PingOrPanic(db)
+
 	// create the insert sql query
 	// returning id will return the id of the inserted note
 	sqlStatement := `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id`
 	// the inserted id will store in this id
-	id := QueryRowForUser(sqlStatement, user, db)
+	id := QueryRowForID(db, sqlStatement, &user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
 	return id
 }
 
@@ -397,13 +197,7 @@ func insertUser(user models.User, db *sql.DB) int64 {
 // get one user from the DB by its userid
 func getSpecificNotes(searchType int, db *sql.DB) ([]models.Note, error) {
 	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	// close the db connection
-	//defer db.Close()
+	PingOrPanic(db)
 
 	var notes []models.Note
 
@@ -449,7 +243,7 @@ func getSpecificNotes(searchType int, db *sql.DB) ([]models.Note, error) {
 	rows, err := db.Query(sqlStatement)
 
 	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
+		log.Printf("Unable to execute the query. %v", err)
 	}
 
 	// close the statement
@@ -463,7 +257,7 @@ func getSpecificNotes(searchType int, db *sql.DB) ([]models.Note, error) {
 		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content)
 
 		if err != nil {
-			log.Fatalf("Unable to scan the row. %v", err)
+			log.Printf("Unable to scan the row. %v", err)
 		}
 
 		// append the user in the users slice
@@ -474,63 +268,41 @@ func getSpecificNotes(searchType int, db *sql.DB) ([]models.Note, error) {
 }
 
 //give this a name and password and it spits out an api response with a token
-func checkLogin(name string, password string, db *sql.DB) (models.APIResponse, error) {
+func checkLogin(name string, password string, db *sql.DB) models.APIResponse {
 	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-	// close the db connection
-	//defer db.Close()
+	PingOrPanic(db)
+
 	sqlStatement := `SELECT * FROM users WHERE name = $1 and password = $2`
 	// execute the sql statement
-	rows, err := db.Query(sqlStatement, name, password)
+	rows := QueryRowForType(db, sqlStatement, name, password)
 	var users []models.User
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
+
 	//TODO theoretically this could return more than one user
-	for rows.Next() {
-		var user models.User
+	// for rows.Next() {
+	// 	user := models.ParseSingleUser(rows)
+	// 	// append the user in the users slice
+	// 	users = append(users, user)
+	// 	numOfUsers := len(users)
+	// 	if numOfUsers > 1 {
+	// 		log.Printf("More than one user with this name|password combo. please investigate")
+	// 	}
 
-		// unmarshal the row object to user
-		err = rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
-
-		if err != nil {
-			log.Fatalf("Unable to scan the row. %v", err)
-		}
-
-		// append the user in the users slice
-		users = append(users, user)
-	}
-	// close the statement
+	// }
+	users = models.ParseUserArray(rows)
 	//populate the response
 	//TODO implement checks for multiple users with the same user and password
 	var api models.APIResponse
 	api.Code = 200
 	api.Message = "Successful User Acquired"
-	api.Data = generateToken(users[0]) //use only the first one
+	api.Data = GenerateToken(users[0]) //use only the first one
 	defer rows.Close()
-	return api, err
-}
-
-//take a user and use the stuff to make base64 encoded login token. DO NOT DO THIS IN PRODUCTION
-func generateToken(user models.User) string {
-	data := user.Name + user.Password
-	sEnc := b64.StdEncoding.EncodeToString([]byte(data))
-	return sEnc
+	return api
 }
 
 // get one user from the DB by its userid
-func getAllNotesUserHasAccessTo(id int, db *sql.DB) ([]models.Note, error) {
+func getAllNotesUserHasAccessTo(id int, db *sql.DB) []models.Note {
 	// check the connection
-	err := db.Ping()
-	if err != nil {
-		panic(err)
-	}
-
-	// close the db connection
-	//defer db.Close()
+	PingOrPanic(db)
 
 	var notes []models.Note
 
@@ -540,22 +312,10 @@ func getAllNotesUserHasAccessTo(id int, db *sql.DB) ([]models.Note, error) {
 	editors @> ARRAY[$1]::int[]
 	or viewers @> ARRAY[$1]::int[]
 	or owner = $1`
-	//select * from users where id = ANY(ARRAY [1,2])
-	// execute the sql statement
-	rows, err := db.Query(sqlStatement, id)
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
-
-	// close the statement
-	defer rows.Close()
-
+	row := QueryRowForType(db, sqlStatement, id)
 	// iterate over the rows
-	for rows.Next() {
-		notes = models.ParseNoteArray(rows)
-	}
-
+	notes = models.ParseNoteArray(row)
+	defer row.Close()
 	// return empty user on error
-	return notes, err
+	return notes
 }

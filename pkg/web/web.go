@@ -9,7 +9,8 @@ import (
 
 	"github.com/gorilla/mux"   // used to get the params from the route
 	"github.com/joho/godotenv" // package used to read the .env file
-	_ "github.com/lib/pq"      //sql driver. blank is required
+	"github.com/lib/pq"
+	_ "github.com/lib/pq" //sql driver. blank is required
 	"go.iosoftworks.com/EnterpriseNote/pkg/config"
 	"go.iosoftworks.com/EnterpriseNote/pkg/models"
 	"go.uber.org/zap"
@@ -114,18 +115,21 @@ func createTable() {
 
 	//create the base notes table for if it doesn't exist
 	sqlStatement := `DROP TABLE IF EXISTS notes;`
-	//execute the sql statement and return a response
-	res, err := db.Exec(sqlStatement)
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
+	Execute(db, sqlStatement)
+	// //execute the sql statement and return a response
+	// res, err := db.Exec(sqlStatement)
+	// if err != nil {
+	// 	log.Fatalf("Unable to execute the query. %v", err)
+	// }
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `DROP TABLE IF EXISTS users;`
 	//execute the sql statement and return a response
-	res, err = db.Exec(sqlStatement)
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
+	Execute(db, sqlStatement)
+
+	// res, err; = db.Exec(sqlStatement)
+	// if err != nil {
+	// 	log.Fatalf("Unable to execute the query. %v", err)
+	// }
 
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS users (
@@ -135,14 +139,15 @@ func createTable() {
 		email TEXT,
 		token TEXT
 	);`
+	Execute(db, sqlStatement)
 
 	//execute the sql statement and return a response
-	res, err = db.Exec(sqlStatement)
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
+	// res, err = db.Exec(sqlStatement)
+	// if err != nil {
+	// 	log.Fatalf("Unable to execute the query. %v", err)
+	// }
 	//print the response maybe
-	fmt.Printf("%s\n ", res)
+	//fmt.Printf("%s\n ", res)
 
 	//TODO rebuild this table function
 	//create the base notes table for if it doesn't exist
@@ -156,12 +161,67 @@ func createTable() {
 			editors integer[],
 			FOREIGN KEY (owner)	REFERENCES users (id)
 		);`
+	Execute(db, sqlStatement)
+
 	//execute the sql statement and return a response
-	res, err = db.Exec(sqlStatement)
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
+	// res, err = db.Exec(sqlStatement)
+	// if err != nil {
+	// 	log.Fatalf("Unable to execute the query. %v", err)
+	// }
 
 	//print the response maybe
-	fmt.Printf("%s\n ", res)
+	//fmt.Printf("%s\n ", res)
+
+	sqlStatement = `
+	insert into users (id,name,password,email) values (0,'Lithial','1234','me@james.me');
+	insert into users (id,name,password,email) values (1,'Joe','1234','you@james.me');
+	insert into users (id,name,password,email) values (2,'Peter','1234','us@james.me');
+	insert into users (id,name,password,email) values (3,'Arran','1234','re@james.me');
+	insert into users (id,name,password,email) values (4,'Finn','1234','la@james.me');
+	insert into users (id,name,password,email) values (5,'Sam','1234','de@james.me');
+	`
+	Execute(db, sqlStatement)
+
+	Notes = []models.Note{
+		models.Note{
+			ID:      "0",
+			Title:   "James is the overlord",
+			Desc:    "The best overlord",
+			Content: "The very best overlord there is",
+			Owner:   0,
+			Viewers: []int{1, 2, 3},
+			Editors: []int{4, 5},
+		},
+		models.Note{
+			ID:      "1",
+			Title:   "Joe is the Minion",
+			Desc:    "The best minion",
+			Content: "So i decree",
+			Owner:   0,
+			Viewers: []int{1, 2, 3},
+			Editors: []int{4, 5},
+		},
+		models.Note{
+			ID:      "2",
+			Title:   "No joe is the boss",
+			Desc:    "The best boss",
+			Content: "So i decree",
+			Owner:   1,
+			Viewers: []int{0, 2, 3},
+			Editors: []int{4, 5},
+		},
+	}
+	for _, note := range Notes {
+		fmt.Println(note.Desc)
+		var id int64
+		sqlStatement := `INSERT INTO notes (id, title, description, contents, owner, viewers, editors) VALUES ($1, $2, $3,$4,$5,$6, $7) RETURNING id`
+
+		err := db.QueryRow(sqlStatement, note.ID, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors)).Scan(&id)
+		//TODO make this error message less bad
+		if err != nil {
+			log.Printf("Unable to execute the query. %v\n", err)
+		}
+		fmt.Printf("Inserted a single record %v\n", id)
+
+	}
 }

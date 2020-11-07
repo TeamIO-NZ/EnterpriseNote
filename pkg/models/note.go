@@ -39,9 +39,13 @@ func ParseStringForArrayNumbers(stringToBreak string, array []int) (arrayToRetur
 	}
 	return array
 }
+
+//ParseNoteArray parses a note array and returns the entire array
 func ParseNoteArray(rows *sql.Rows) []Note {
 	var note Note
 	var notes []Note
+	fmt.Println("Begin scanning rows")
+	fmt.Printf("row status = %t", rows.Next())
 	for rows.Next() {
 		var viewers string
 		var editors string
@@ -49,12 +53,33 @@ func ParseNoteArray(rows *sql.Rows) []Note {
 		// unmarshal the row object to user
 		err := rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &viewers, &editors)
 		if err != nil {
-			log.Fatalf("Unable to scan the row. %v", err)
+			log.Printf("ParseSingleNote: Unable to scan the row. %v\n", err)
 		}
 		note.Viewers = ParseStringForArrayNumbers(viewers, note.Viewers)
 		note.Editors = ParseStringForArrayNumbers(editors, note.Editors)
 		// // append the user in the users slice
+		// // append the user in the users slice
 		notes = append(notes, note)
 	}
 	return notes
+}
+
+//ParseSingleNote Parses a single note and returns it
+func ParseSingleNote(row *sql.Rows) Note {
+	var note Note
+	var viewers string
+	var editors string
+	fmt.Println("scanning a row of note stuff. awaiting crash")
+	// unmarshal the row object to user
+	if row.Next() {
+		err := row.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &viewers, &editors)
+		if err != nil {
+			log.Printf("ParseSingleNote: Unable to scan the row. %v\n", err)
+		}
+		note.Viewers = ParseStringForArrayNumbers(viewers, note.Viewers)
+		note.Editors = ParseStringForArrayNumbers(editors, note.Editors)
+		// // append the user in the users slice
+	}
+
+	return note
 }
