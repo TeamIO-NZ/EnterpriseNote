@@ -22,7 +22,7 @@ func (server Server) ReturnAllNotes(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 
 	//get all the notes in the database. returns the notes and any errors
-	notes, err := getAllNotes()
+	notes, err := getAllNotes(server.db)
 
 	if err != nil {
 		log.Fatalf("Unable to get all notes/ %v", err)
@@ -49,7 +49,7 @@ func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to convert the string into int.  %v", err)
 	}
 	// call the getUser function with user id to retrieve a single user
-	note, err := getNote(int64(id))
+	note, err := getNote(int64(id), server.db)
 
 	if err != nil {
 		log.Fatalf("Unable to get note. %v", err)
@@ -75,11 +75,11 @@ func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to decode the request body.  %v", err)
 	}
 	// call insert user function and pass the note
-	insertID := insertNote(note)
+	insertID := insertNote(note, server.db)
 	// format a response object
 	res := response{
 		ID:      insertID,
-		Message: "User created successfully",
+		Message: "Note created successfully",
 	}
 	json.NewEncoder(w).Encode(res)
 
@@ -101,7 +101,7 @@ func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to convert the string into int.  %v", err)
 	}
 	// call the deleteUser, convert the int to int64
-	deletedRows := deleteNote(int64(id))
+	deletedRows := deleteNote(int64(id), server.db)
 
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
@@ -137,7 +137,7 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to decode the request body.  %v", err)
 	}
 	// call update note to update the note
-	updatedRows := updateNote(int64(id), note)
+	updatedRows := updateNote(int64(id), note, server.db)
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
 	// format the response message
@@ -160,7 +160,7 @@ func (server Server) ReturnAllUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 
 	//get all the notes in the database. returns the notes and any errors
-	users, err := getAllUsers()
+	users, err := getAllUsers(server.db)
 
 	if err != nil {
 		log.Fatalf("Unable to get all notes/ %v", err)
@@ -187,7 +187,7 @@ func (server Server) ReturnSingleUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to convert the string into int.  %v", err)
 	}
 	// call the getUser function with user id to retrieve a single user
-	note, err := getUser(int64(id))
+	note, err := getUser(int64(id), server.db)
 
 	if err != nil {
 		log.Fatalf("Unable to get note. %v", err)
@@ -197,7 +197,7 @@ func (server Server) ReturnSingleUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(note)
 }
 
-//ReturnSingleUser Get Notes in json format by username
+//ReturnSingleUserByName Get Notes in json format by username
 //use mux to get us single notes
 func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Request) {
 	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
@@ -212,7 +212,7 @@ func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Reque
 	name := vars["username"]
 
 	// call the getUser function with user id to retrieve a single user
-	note, err := getUserByName(name)
+	note, err := getUserByName(name, server.db)
 
 	if err != nil {
 		log.Fatalf("Unable to get note. %v", err)
@@ -238,7 +238,7 @@ func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to decode the request body.  %v", err)
 	}
 	// call insert user function and pass the note
-	insertID := insertUser(user)
+	insertID := insertUser(user, server.db)
 	// format a response object
 	res := response{
 		ID:      insertID,
@@ -264,7 +264,7 @@ func (server Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to convert the string into int.  %v", err)
 	}
 	// call the deleteUser, convert the int to int64
-	deletedRows := deleteUser(int64(id))
+	deletedRows := deleteUser(int64(id), server.db)
 
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
@@ -300,7 +300,7 @@ func (server Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("Unable to decode the request body.  %v", err)
 	}
 	// call update note to update the note
-	updatedRows := updateUser(int64(id), user)
+	updatedRows := updateUser(int64(id), user, server.db)
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
 	// format the response message
@@ -329,7 +329,7 @@ func (server Server) SearchForNotes(w http.ResponseWriter, r *http.Request) {
 	}
 	//get specific notes in the database. returns the notes and any errors
 	//input is 1-5 based on what notes we want. More functions to come maybe?
-	notes, err := getSpecificNotes(id)
+	notes, err := getSpecificNotes(id, server.db)
 
 	if err != nil {
 		log.Fatalf("Unable to get all notes/ %v", err)
@@ -354,7 +354,7 @@ func (server Server) GetAllNotesUserHasAccessTo(w http.ResponseWriter, r *http.R
 	//var notes []models.Note
 	//get specific notes in the database. returns the notes and any errors
 	//input is 1-5 based on what notes we want. More functions to come maybe?
-	notes, err := getAllNotesUserHasAccessTo(id)
+	notes, err := getAllNotesUserHasAccessTo(id, server.db)
 
 	if err != nil {
 		log.Fatalf("Unable to get all notes/ %v", err)
@@ -382,7 +382,7 @@ func (server Server) Login(w http.ResponseWriter, r *http.Request) {
 	//TODO: generate api token
 	//TODO: return api token
 	//create the data
-	var data, err = checkLogin(username, password)
+	var data, err = checkLogin(username, password, server.db)
 	//check for errors
 	if err != nil {
 		log.Printf("Unable to get user login/ %v", err)

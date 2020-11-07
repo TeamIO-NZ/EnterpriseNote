@@ -5,8 +5,6 @@ import (
 	b64 "encoding/base64"
 	"fmt"
 	"log"
-	"strconv"
-	"strings"
 
 	"github.com/lib/pq"
 	"go.iosoftworks.com/EnterpriseNote/pkg/models"
@@ -16,12 +14,15 @@ import (
 
 //getNote
 // get one user from the DB by its userid
-func getNote(id int64) (models.Note, error) {
-	// create the postgres db connection
-	db := createConnection()
+func getNote(id int64, db *sql.DB) (models.Note, error) {
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	// create a user of models.User type
 	var note models.Note
@@ -33,7 +34,7 @@ func getNote(id int64) (models.Note, error) {
 	row := db.QueryRow(sqlStatement, id)
 
 	// unmarshal the row object to user
-	err := row.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &note.Viewers, &note.Editors)
+	err = row.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &note.Viewers, &note.Editors)
 
 	switch err {
 	case sql.ErrNoRows:
@@ -50,12 +51,15 @@ func getNote(id int64) (models.Note, error) {
 }
 
 // get one user from the DB by its userid
-func getAllNotes() ([]models.Note, error) {
-	// create the postgres db connection
-	db := createConnection()
+func getAllNotes(db *sql.DB) ([]models.Note, error) {
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	var notes []models.Note
 
@@ -73,33 +77,28 @@ func getAllNotes() ([]models.Note, error) {
 	defer rows.Close()
 
 	// iterate over the rows
-	for rows.Next() {
-		var note models.Note
+	//for rows.Next() {
 
-		// unmarshal the row object to user
-		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &note.Viewers, &note.Editors)
+	// append the user in the users slice
+	notes = models.ParseNoteArray(rows)
 
-		if err != nil {
-			log.Fatalf("Unable to scan the row. %v", err)
-		}
-
-		// append the user in the users slice
-		notes = append(notes, note)
-
-	}
+	//}
 
 	// return empty user on error
 	return notes, err
 }
 
 // update user in the DB
-func updateNote(id int64, note models.Note) int64 {
+func updateNote(id int64, note models.Note, db *sql.DB) int64 {
 
-	// create the postgres db connection
-	db := createConnection()
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	// create the update sql query
 	sqlStatement := `UPDATE notes SET title=$2, description=$3, contents=$4, owner=$5,viewers=$6,editors=$7  WHERE id=$1`
@@ -118,19 +117,22 @@ func updateNote(id int64, note models.Note) int64 {
 		log.Fatalf("Error while checking the affected rows. %v", err)
 	}
 
-	fmt.Printf("Total rows/record affected %v", rowsAffected)
+	fmt.Printf("Total rows/record affected %v\n", rowsAffected)
 
 	return rowsAffected
 }
 
 // delete user in the DB
-func deleteNote(id int64) int64 {
+func deleteNote(id int64, db *sql.DB) int64 {
 
-	// create the postgres db connection
-	db := createConnection()
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	// create the delete sql query
 	sqlStatement := `DELETE FROM notes WHERE id=$1`
@@ -149,17 +151,20 @@ func deleteNote(id int64) int64 {
 		log.Fatalf("Error while checking the affected rows. %v", err)
 	}
 
-	fmt.Printf("Total rows/record affected %v", rowsAffected)
+	fmt.Printf("Total rows/record affected %v\n", rowsAffected)
 
 	return rowsAffected
 }
 
 //insert note into the database
-func insertNote(note models.Note) int64 {
-	// create the postgres db connection
-	db := createConnection()
+func insertNote(note models.Note, db *sql.DB) int64 {
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 	// create the insert sql query
 	// returning id will return the id of the inserted note
 	sqlStatement := `INSERT INTO notes (title, description, contents, owner, viewers, editors) VALUES ($1, $2, $3,$4,$5,$6) RETURNING id`
@@ -167,13 +172,13 @@ func insertNote(note models.Note) int64 {
 	var id int64
 	// execute the sql statement
 	// Scan function will save the insert id in the id
-	err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Title, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors)).Scan(&id)
+	err = db.QueryRow(sqlStatement, note.Title, note.Desc, note.Title, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors)).Scan(&id)
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
 	}
 
-	fmt.Printf("Inserted a single record %v", id)
+	fmt.Printf("Inserted a single record %v\n", id)
 
 	// return the inserted id
 	return id
@@ -183,12 +188,15 @@ func insertNote(note models.Note) int64 {
 
 //getNote
 // get one user from the DB by its userid
-func getUser(id int64) (models.User, error) {
-	// create the postgres db connection
-	db := createConnection()
+func getUser(id int64, db *sql.DB) (models.User, error) {
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	// create a user of models.User type
 	var user models.User
@@ -200,7 +208,7 @@ func getUser(id int64) (models.User, error) {
 	row := db.QueryRow(sqlStatement, id)
 
 	// unmarshal the row object to user
-	err := row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
+	err = row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
 
 	switch err {
 	case sql.ErrNoRows:
@@ -218,12 +226,15 @@ func getUser(id int64) (models.User, error) {
 
 //getNote
 // get one user from the DB by its userid
-func getUserByName(name string) (models.User, error) {
-	// create the postgres db connection
-	db := createConnection()
+func getUserByName(name string, db *sql.DB) (models.User, error) {
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	// create a user of models.User type
 	var user models.User
@@ -235,7 +246,7 @@ func getUserByName(name string) (models.User, error) {
 	row := db.QueryRow(sqlStatement, name)
 
 	// unmarshal the row object to user
-	err := row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
+	err = row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
 
 	switch err {
 	case sql.ErrNoRows:
@@ -252,12 +263,15 @@ func getUserByName(name string) (models.User, error) {
 }
 
 // get one user from the DB by its userid
-func getAllUsers() ([]models.User, error) {
-	// create the postgres db connection
-	db := createConnection()
+func getAllUsers(db *sql.DB) ([]models.User, error) {
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	var users []models.User
 
@@ -295,13 +309,16 @@ func getAllUsers() ([]models.User, error) {
 }
 
 // update user in the DB
-func updateUser(id int64, user models.User) int64 {
+func updateUser(id int64, user models.User, db *sql.DB) int64 {
 
-	// create the postgres db connection
-	db := createConnection()
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	// create the update sql query
 	sqlStatement := `UPDATE users SET name=$2, email=$3, password=$4 WHERE id=$1`
@@ -320,19 +337,22 @@ func updateUser(id int64, user models.User) int64 {
 		log.Fatalf("Error while checking the affected rows. %v", err)
 	}
 
-	fmt.Printf("Total rows/record affected %v", rowsAffected)
+	fmt.Printf("Total rows/record affected %v\n", rowsAffected)
 
 	return rowsAffected
 }
 
 // delete user in the DB
-func deleteUser(id int64) int64 {
+func deleteUser(id int64, db *sql.DB) int64 {
 
-	// create the postgres db connection
-	db := createConnection()
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	// create the delete sql query
 	sqlStatement := `DELETE FROM users WHERE id=$1`
@@ -351,44 +371,39 @@ func deleteUser(id int64) int64 {
 		log.Fatalf("Error while checking the affected rows. %v", err)
 	}
 
-	fmt.Printf("Total rows/record affected %v", rowsAffected)
+	fmt.Printf("Total rows/record affected %v\n", rowsAffected)
 
 	return rowsAffected
 }
 
 //insert note into the database
-func insertUser(user models.User) int64 {
-	// create the postgres db connection
-	db := createConnection()
+func insertUser(user models.User, db *sql.DB) int64 {
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 	// create the insert sql query
 	// returning id will return the id of the inserted note
 	sqlStatement := `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id`
 	// the inserted id will store in this id
-	var id int64
-	// execute the sql statement
-	// Scan function will save the insert id in the id
-	err := db.QueryRow(sqlStatement, user.Name, user.Email, user.Password).Scan(&id)
-
-	if err != nil {
-		log.Fatalf("Unable to execute the query. %v", err)
-	}
-
-	fmt.Printf("Inserted a single record %v", id)
-
-	// return the inserted id
+	id := QueryRowForUser(sqlStatement, user, db)
 	return id
 }
 
 /*------------------specific searches-----------**/
 // get one user from the DB by its userid
-func getSpecificNotes(searchType int) ([]models.Note, error) {
-	// create the postgres db connection
-	db := createConnection()
+func getSpecificNotes(searchType int, db *sql.DB) ([]models.Note, error) {
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	var notes []models.Note
 
@@ -459,10 +474,14 @@ func getSpecificNotes(searchType int) ([]models.Note, error) {
 }
 
 //give this a name and password and it spits out an api response with a token
-func checkLogin(name string, password string) (models.APIResponse, error) {
-	db := createConnection()
+func checkLogin(name string, password string, db *sql.DB) (models.APIResponse, error) {
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 	sqlStatement := `SELECT * FROM users WHERE name = $1 and password = $2`
 	// execute the sql statement
 	rows, err := db.Query(sqlStatement, name, password)
@@ -503,12 +522,15 @@ func generateToken(user models.User) string {
 }
 
 // get one user from the DB by its userid
-func getAllNotesUserHasAccessTo(id int) ([]models.Note, error) {
-	// create the postgres db connection
-	db := createConnection()
+func getAllNotesUserHasAccessTo(id int, db *sql.DB) ([]models.Note, error) {
+	// check the connection
+	err := db.Ping()
+	if err != nil {
+		panic(err)
+	}
 
 	// close the db connection
-	defer db.Close()
+	//defer db.Close()
 
 	var notes []models.Note
 
@@ -531,51 +553,7 @@ func getAllNotesUserHasAccessTo(id int) ([]models.Note, error) {
 
 	// iterate over the rows
 	for rows.Next() {
-		var note models.Note
-
-		var viewers string
-		var editors string
-		// unmarshal the row object to user
-		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &viewers, &editors)
-		if err != nil {
-			log.Fatalf("Unable to scan the row. %v", err)
-		}
-
-		//convert the weird string to an int array
-		// fmt.Println(viewers)
-		// fmt.Println(editors)
-		//remove the curly brackets without my brain hating regex to much
-		viewers = strings.Replace(viewers, "{", "", -1)
-		viewers = strings.Replace(viewers, "}", "", -1)
-		//fmt.Println(viewers)
-		//split the string by the comma
-		v := strings.Split(viewers, ",")
-		//loop the resulting array and convert every item to a number
-		for n := range v {
-			str, err := strconv.Atoi(fmt.Sprint(n))
-			//crash if its not a number
-			if err != nil {
-				log.Println("Oh god its broken")
-			}
-			//append it to the array
-			note.Viewers = append(note.Viewers, str)
-		}
-		//TODO make this a function because i do it twice
-		editors = strings.Replace(viewers, "{", "", -1)
-		editors = strings.Replace(viewers, "}", "", -1)
-		fmt.Println(editors)
-		e := strings.Split(editors, ",")
-		for n := range e {
-			str, err := strconv.Atoi(fmt.Sprint(n))
-			if err != nil {
-				log.Println("Oh god its broken")
-			}
-			note.Editors = append(note.Editors, str)
-
-		}
-		// append the user in the users slice
-		notes = append(notes, note)
-
+		notes = models.ParseNoteArray(rows)
 	}
 
 	// return empty user on error

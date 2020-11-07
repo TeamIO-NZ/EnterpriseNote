@@ -18,6 +18,7 @@ import (
 //Server this is the struct that contains the webserver information
 type Server struct {
 	config config.WebServerConfig
+	db     *sql.DB
 }
 
 // response format
@@ -43,9 +44,9 @@ func (server Server) Start() {
 	// 	models.Note{ID: "1", Title: "Hello", Desc: "Article Description", Content: "Article Content"},
 	// 	models.Note{ID: "2", Title: "Hello 2", Desc: "Article Description", Content: "Article Content"},
 	// }
-
+	server.db = createConnection()
 	server.HandleRequests()
-
+	server.db.Close()
 }
 
 //HandleRequests run me to make the server work
@@ -89,7 +90,7 @@ func createConnection() *sql.DB {
 	err := godotenv.Load(".env")
 
 	// Open the connection
-	db, err := sql.Open("postgres", os.Getenv("POSTGRES_URL"))
+	db, err := sql.Open("postgres", os.Getenv("ALT_POSTGRES_URL"))
 	if err != nil {
 		panic(err)
 	}
