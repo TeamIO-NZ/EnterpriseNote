@@ -24,7 +24,6 @@ func ParseStringForArrayNumbers(stringToBreak string, array []int) (arrayToRetur
 	stringToBreak = strings.Replace(stringToBreak, "}", "", -1)
 	stringToBreak = strings.Replace(stringToBreak, "{", "", -1)
 
-	//fmt.Println(viewers)
 	//split the string by the comma
 	split := strings.Split(stringToBreak, ",")
 	//loop the resulting array and convert every item to a number
@@ -44,8 +43,8 @@ func ParseStringForArrayNumbers(stringToBreak string, array []int) (arrayToRetur
 func ParseNoteArray(rows *sql.Rows) []Note {
 	var note Note
 	var notes []Note
-	fmt.Println("Begin scanning rows")
-	fmt.Printf("row status = %t\n", rows.Next())
+	// fmt.Println("Begin scanning rows")
+	// fmt.Printf("row status = %t\n", rows.Next())
 	for rows.Next() {
 		var viewers string
 		var editors string
@@ -57,7 +56,6 @@ func ParseNoteArray(rows *sql.Rows) []Note {
 		}
 		note.Viewers = ParseStringForArrayNumbers(viewers, note.Viewers)
 		note.Editors = ParseStringForArrayNumbers(editors, note.Editors)
-		// // append the user in the users slice
 		// // append the user in the users slice
 		notes = append(notes, note)
 	}
@@ -78,8 +76,7 @@ func ParseSingleNote(row *sql.Rows) Note {
 		}
 		note.Viewers = ParseStringForArrayNumbers(viewers, note.Viewers)
 		note.Editors = ParseStringForArrayNumbers(editors, note.Editors)
-		// // append the user in the users slice
 	}
-
+	//return the note
 	return note
 }

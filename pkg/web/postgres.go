@@ -190,16 +190,12 @@ func insertUser(user models.User, db *sql.DB) int64 {
 	var id int64
 	canInsert := true
 	u := getUserByName(string(user.Name), db)
-
+	//check to see if a user name is taken
 	if u.Name == user.Name {
 		canInsert = false
 		log.Printf("This user name is already taken\n")
 	}
-
-	// create the insert sql query
-	// returning id will return the id of the inserted note
-	// the inserted id will store in this id
-
+	//if you can insert the user then do so
 	if canInsert == true {
 		sqlStatement := `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id`
 		id = QueryRowForID(db, sqlStatement, &user.Name, &user.Password, &user.Email)

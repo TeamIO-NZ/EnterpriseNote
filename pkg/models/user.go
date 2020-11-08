@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -37,9 +36,8 @@ func ParseSingleUser(row *sql.Rows) User {
 func ParseUserArray(rows *sql.Rows) []User {
 	var user User
 	var users []User
-	//fmt.Println("Begin scanning user rows")
 	for rows.Next() {
-		fmt.Println("scanning a row of user stuff. awaiting crash")
+		//fmt.Println("scanning a row of user stuff. awaiting crash")
 		// unmarshal the row object to user
 		err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
 		if err != nil {

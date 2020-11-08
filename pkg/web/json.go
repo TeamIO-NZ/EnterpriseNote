@@ -16,7 +16,6 @@ import (
 
 //ReturnAllNotes Gets all the notes in json format
 func (server Server) ReturnAllNotes(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
@@ -31,7 +30,6 @@ func (server Server) ReturnAllNotes(w http.ResponseWriter, r *http.Request) {
 //ReturnSingleNote Get Notes in json format by id
 //use mux to get us single notes
 func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
@@ -55,11 +53,9 @@ func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 	// get the body of our POST request
 	// Allow all origin to handle cors issue
 	w.Header().Set("Content-Type", "application/json")
-	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 	// return the string response containing the request body
-
 	var note models.Note
 	err := json.NewDecoder(r.Body).Decode(&note)
 	if err != nil {
@@ -78,14 +74,11 @@ func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 
 //DeleteNote deletes a note
 func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
-	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	// once again, we will need to parse the path parameters
 	vars := mux.Vars(r)
 	// we will need to extract the `id` of the article we need to delete
-
 	// convert the id in string to int
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
@@ -107,10 +100,8 @@ func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
 
 //UpdateNote updates the note as json
 func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	// get the userid from the request params, key is "id"
 	vars := mux.Vars(r)
@@ -121,7 +112,6 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 	}
 	// create an empty note of type note
 	var note models.Note
-
 	// decode the json request to note
 	err = json.NewDecoder(r.Body).Decode(&note)
 	if err != nil {
@@ -136,7 +126,6 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 		ID:      int64(id),
 		Message: msg,
 	}
-
 	// send the response
 	json.NewEncoder(w).Encode(res)
 }
@@ -145,14 +134,11 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 
 //ReturnAllUsers Gets all the notes in json format
 func (server Server) ReturnAllUsers(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
-
 	//get all the notes in the database. returns the notes and any errors
 	users := getAllUsers(server.db)
-
 	// send all the notes as response
 	json.NewEncoder(w).Encode(users)
 }
@@ -160,17 +146,14 @@ func (server Server) ReturnAllUsers(w http.ResponseWriter, r *http.Request) {
 //ReturnSingleUser Get Notes in json format by id
 //use mux to get us single notes
 func (server Server) ReturnSingleUser(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	//we will need to parse the path parameters
 	vars := mux.Vars(r)
-	// we will need to extract the `id` of the article we
-	// wish to return
+	// we will need to extract the `id` of the article we wish to return
 	// convert the id type from string to int
 	id, err := strconv.Atoi(vars["id"])
-	//key := vars["id"]
 	if err != nil {
 		log.Printf("Unable to convert the string into int.  %v", err)
 	}
@@ -184,7 +167,6 @@ func (server Server) ReturnSingleUser(w http.ResponseWriter, r *http.Request) {
 //ReturnSingleUserByName Get Notes in json format by username
 //use mux to get us single notes
 func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
@@ -206,7 +188,6 @@ func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 	// get the body of our POST request
 	// Allow all origin to handle cors issue
 	w.Header().Set("Content-Type", "application/json")
-	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "POST")
 	// return the string response containing the request body
@@ -229,10 +210,8 @@ func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 
 //DeleteUser deletes a note
 func (server Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Context-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
-	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 	// once again, we will need to parse the path parameters
 	vars := mux.Vars(r)
 	// we will need to extract the `id` of the article we need to delete
@@ -258,10 +237,8 @@ func (server Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 //UpdateUser updates the note as json
 func (server Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	// w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "PUT")
-	// w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 	// get the userid from the request params, key is "id"
 	vars := mux.Vars(r)
@@ -306,7 +283,6 @@ func (server Server) GetAllNotesUserHasAccessTo(w http.ResponseWriter, r *http.R
 	if err != nil {
 		log.Printf("Unable to convert the string into an int. %v", err)
 	}
-	//var notes []models.Note
 	//get specific notes in the database. returns the notes and any errors
 	//input is 1-5 based on what notes we want. More functions to come maybe?
 	notes := getAllNotesUserHasAccessTo(id, server.db)
@@ -352,16 +328,9 @@ func (server Server) Login(w http.ResponseWriter, r *http.Request) {
 			Message: "400: Bad Request. Empty username or password, set X-Username or X-Password headers to use.",
 		})
 	}
-	//TODO: check if creds are valid
-	//TODO: generate api token
-	//TODO: return api token
 	//create the data
 	var data = checkLogin(username, password, server.db)
 
 	//encode the data
 	json.NewEncoder(w).Encode(data)
-	// _ = json.NewEncoder(w).Encode(models.APIResponse{
-	// 	Code: 200,
-	// 	Data: "totally-an-api-key",
-	// })
 }

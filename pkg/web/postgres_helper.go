@@ -16,11 +16,8 @@ func QueryRowForID(db *sql.DB, sqlStatement string, args ...interface{}) int64 {
 	// execute the sql statement
 	// Scan function will save the insert id in the id
 	err := db.QueryRow(sqlStatement, args).Scan(&id)
-	//TODO make this error message less bad
 	if err != nil {
 		log.Printf("Unable to execute the query. %v\n", err)
-		log.Printf("this was likely and insert")
-
 	}
 	fmt.Printf("Inserted a single record %v\n", id)
 
