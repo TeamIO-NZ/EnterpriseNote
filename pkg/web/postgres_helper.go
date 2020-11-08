@@ -31,7 +31,6 @@ func QueryRowForID(db *sql.DB, sqlStatement string, args ...interface{}) int64 {
 //QueryRowForType query for any type. returns the rows to be worked with. close the rows when your done
 func QueryRowForType(db *sql.DB, sqlStatement string, args ...interface{}) *sql.Rows {
 	// execute the sql statement
-
 	if len(args) == 0 {
 		row, err := db.Query(sqlStatement)
 		if err != nil {
@@ -47,13 +46,23 @@ func QueryRowForType(db *sql.DB, sqlStatement string, args ...interface{}) *sql.
 		return row
 	} else {
 		//log.Printf("Doing multiArgQuery")
+		count := 0
 		if len(args) > 2 {
 			panic("Oh god. to many args in Query for row type")
 		}
+		log.Printf("Multipass")
 		row, err := db.Query(sqlStatement, args[0], args[1])
 		if err != nil {
 			log.Printf("Unable to execute the query. %v\n", err)
 		}
+		for row.Next() {
+			err := row.Scan(&count)
+			if err != nil {
+				panic(err)
+			}
+		}
+		log.Printf("Rows: %d", count)
+
 		return row
 	}
 }

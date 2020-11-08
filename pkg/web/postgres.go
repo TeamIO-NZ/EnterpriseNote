@@ -2,6 +2,7 @@ package web
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/lib/pq"
@@ -208,7 +209,7 @@ func insertUser(user models.User, db *sql.DB) int64 {
 
 /*------------------specific searches-----------**/
 // get one user from the DB by its userid
-func getSpecificNotes(searchType int, db *sql.DB) ([]models.Note, error) {
+func getSpecificNotes(db *sql.DB, id int, targetFunction string, prefix string) []models.Note {
 	// check the connection
 	PingOrPanic(db)
 
@@ -217,67 +218,53 @@ func getSpecificNotes(searchType int, db *sql.DB) ([]models.Note, error) {
 	// create the select sql query
 	//TODO work out this statement
 	sqlStatement := ` `
-
-	switch searchType {
-	case 1:
+	fmt.Println(id)
+	fmt.Println(targetFunction)
+	fmt.Println(prefix)
+	switch targetFunction {
+	case "1":
 		{
 			//TODO a sentence with a given prefix and/or suffix.
-			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
+			sqlStatement = `SELECT * FROM notes 
+			WHERE editors @> ARRAY[$1]::int[] or viewers @> ARRAY[$1]::int[] or owner = $1
+			AND contents LIKE $2`
 			break
 		}
-	case 2:
+	case "2":
 		{
 			//TODO-a phone number with a given area code and optionally a consecutive sequence of numbers that are part 0f that number.
 			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
 			break
 		}
-	case 3:
+	case "3":
 		{
 			//TODO an email address on a domain that is only partially provided.
 			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
 			break
 		}
-	case 4:
+	case "4":
 		{
 			//TODO text that contains at least three of the following case-insensitive words: meeting, minutes, agenda, action, attendees, apologies.
 
 			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
 			break
 		}
-	case 5:
+	case "5":
 		{
 			//TODO a word in all capitals of three characters or more.
 			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
 			break
 		}
 	}
-
-	// execute the sql statement
-	rows, err := db.Query(sqlStatement)
-
-	if err != nil {
-		log.Printf("Unable to execute the query. %v", err)
-	}
-
+	sqlStatement = `SELECT * FROM notes 
+			WHERE editors @> ARRAY[$1]::int[] or viewers @> ARRAY[$1]::int[] or owner = $1`
+	//AND contents LIKE $2`
+	rows := QueryRowForType(db, sqlStatement, id)
+	// iterate over the rows
+	notes = models.ParseNoteArray(rows)
 	// close the statement
 	defer rows.Close()
-
-	// iterate over the rows
-	for rows.Next() {
-		var note models.Note
-
-		// unmarshal the row object to user
-		err = rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content)
-
-		if err != nil {
-			log.Printf("Unable to scan the row. %v", err)
-		}
-
-		// append the user in the users slice
-		notes = append(notes, note)
-
-	}
-	return notes, err
+	return notes
 }
 
 //give this a name and password and it spits out an api response with a token
@@ -293,14 +280,8 @@ func checkLogin(name string, password string, db *sql.DB) models.APIResponse {
 	//populate the users array
 	users = models.ParseUserArray(rows)
 	//populate the response
-	//TODO implement checks for multiple users with the same user and password
-	if len(users) > 1 {
 
-	}
-	var api models.APIResponse
-	api.Code = 200
-	api.Message = "Successful User Acquired"
-	api.Data = GenerateToken(users[0]) //use only the first one
+	api := models.BuildAPIResponseSuccess("Login Successful", GenerateToken(users[0]))
 	defer rows.Close()
 	return api
 }
@@ -314,10 +295,7 @@ func getAllNotesUserHasAccessTo(id int, db *sql.DB) []models.Note {
 
 	// create the select sql query
 	sqlStatement := `SELECT * FROM notes 
-	WHERE 
-	editors @> ARRAY[$1]::int[]
-	or viewers @> ARRAY[$1]::int[]
-	or owner = $1`
+	WHERE editors @> ARRAY[$1]::int[] 	or viewers @> ARRAY[$1]::int[] or owner = $1`
 	row := QueryRowForType(db, sqlStatement, id)
 	// iterate over the rows
 	notes = models.ParseNoteArray(row)

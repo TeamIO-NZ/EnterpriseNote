@@ -45,11 +45,11 @@ func ParseNoteArray(rows *sql.Rows) []Note {
 	var note Note
 	var notes []Note
 	fmt.Println("Begin scanning rows")
-	fmt.Printf("row status = %t", rows.Next())
+	fmt.Printf("row status = %t\n", rows.Next())
 	for rows.Next() {
 		var viewers string
 		var editors string
-		fmt.Println("scanning a row of note stuff. awaiting crash")
+		//fmt.Println("scanning a row of note stuff. awaiting crash")
 		// unmarshal the row object to user
 		err := rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &viewers, &editors)
 		if err != nil {

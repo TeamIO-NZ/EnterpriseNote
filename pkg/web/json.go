@@ -37,13 +37,11 @@ func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	//we will need to parse the path parameters
 	vars := mux.Vars(r)
-	// we will need to extract the `id` of the article we
-	// wish to return
+	// we will need to extract the `id` of the article we wish to return
 	// convert the id type from string to int
 	id, err := strconv.Atoi(vars["id"])
-	//key := vars["id"]
 	if err != nil {
-		log.Fatalf("Unable to convert the string into int.  %v", err)
+		log.Printf("Unable to convert the string into int.  %v", err)
 	}
 	// call the getUser function with user id to retrieve a single user
 	note := getNote(int64(id), server.db)
@@ -65,7 +63,7 @@ func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 	var note models.Note
 	err := json.NewDecoder(r.Body).Decode(&note)
 	if err != nil {
-		log.Fatalf("Unable to decode the request body.  %v", err)
+		log.Printf("Unable to decode the request body.  %v", err)
 	}
 	// call insert user function and pass the note
 	insertID := insertNote(note, server.db)
@@ -91,7 +89,7 @@ func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
 	// convert the id in string to int
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Fatalf("Unable to convert the string into int.  %v", err)
+		log.Printf("Unable to convert the string into int.  %v", err)
 	}
 	// call the deleteUser, convert the int to int64
 	deletedRows := deleteNote(int64(id), server.db)
@@ -119,7 +117,7 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 	// convert the id type from string to int
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Fatalf("Unable to convert the string into an int. %v", err)
+		log.Printf("Unable to convert the string into an int. %v", err)
 	}
 	// create an empty note of type note
 	var note models.Note
@@ -127,7 +125,7 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 	// decode the json request to note
 	err = json.NewDecoder(r.Body).Decode(&note)
 	if err != nil {
-		log.Fatalf("Unable to decode the request body.  %v", err)
+		log.Printf("Unable to decode the request body.  %v", err)
 	}
 	// call update note to update the note
 	updatedRows := updateNote(int64(id), note, server.db)
@@ -174,7 +172,7 @@ func (server Server) ReturnSingleUser(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(vars["id"])
 	//key := vars["id"]
 	if err != nil {
-		log.Fatalf("Unable to convert the string into int.  %v", err)
+		log.Printf("Unable to convert the string into int.  %v", err)
 	}
 	// call the getUser function with user id to retrieve a single user
 	note := getUser(int64(id), server.db)
@@ -192,8 +190,7 @@ func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Reque
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
 	//we will need to parse the path parameters
 	vars := mux.Vars(r)
-	// we will need to extract the `id` of the article we
-	// wish to return
+	// we will need to extract the `id` of the article we wish to return
 	// convert the id type from string to int
 	name := vars["username"]
 
@@ -217,7 +214,7 @@ func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		log.Fatalf("Unable to decode the request body.  %v", err)
+		log.Printf("Unable to decode the request body.  %v", err)
 	}
 	// call insert user function and pass the note
 	insertID := insertUser(user, server.db)
@@ -243,7 +240,7 @@ func (server Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	// convert the id in string to int
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Fatalf("Unable to convert the string into int.  %v", err)
+		log.Printf("Unable to convert the string into int.  %v", err)
 	}
 	// call the deleteUser, convert the int to int64
 	deletedRows := deleteUser(int64(id), server.db)
@@ -271,7 +268,7 @@ func (server Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	// convert the id type from string to int
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Fatalf("Unable to convert the string into an int. %v", err)
+		log.Printf("Unable to convert the string into an int. %v", err)
 	}
 	// create an empty note of type note
 	var user models.User
@@ -279,7 +276,7 @@ func (server Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	// decode the json request to note
 	err = json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		log.Fatalf("Unable to decode the request body.  %v", err)
+		log.Printf("Unable to decode the request body.  %v", err)
 	}
 	// call update note to update the note
 	updatedRows := updateUser(int64(id), user, server.db)
@@ -297,30 +294,6 @@ func (server Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 //------------------------------JSON Webrequests Hander functions -- Specifics --------------------------------//
 
-//SearchForNotes function that returns a bunch of notes with specific searching
-func (server Server) SearchForNotes(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Content-Type", "application/json")
-	w.Header().Set("Access-Control-Allow-Methods", "GET")
-	// get the userid from the request params, key is "id"
-	vars := mux.Vars(r)
-	// convert the id type from string to int
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		log.Fatalf("Unable to convert the string into an int. %v", err)
-	}
-	//get specific notes in the database. returns the notes and any errors
-	//input is 1-5 based on what notes we want. More functions to come maybe?
-	notes, err := getSpecificNotes(id, server.db)
-
-	if err != nil {
-		log.Fatalf("Unable to get all notes/ %v", err)
-	}
-	// send all the notes as response
-	json.NewEncoder(w).Encode(notes)
-
-}
-
 //GetAllNotesUserHasAccessTo function that returns a bunch of notes with specific searching
 func (server Server) GetAllNotesUserHasAccessTo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
@@ -331,7 +304,7 @@ func (server Server) GetAllNotesUserHasAccessTo(w http.ResponseWriter, r *http.R
 	// convert the id type from string to int
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		log.Fatalf("Unable to convert the string into an int. %v", err)
+		log.Printf("Unable to convert the string into an int. %v", err)
 	}
 	//var notes []models.Note
 	//get specific notes in the database. returns the notes and any errors
@@ -341,6 +314,28 @@ func (server Server) GetAllNotesUserHasAccessTo(w http.ResponseWriter, r *http.R
 	// send all the notes as response
 	json.NewEncoder(w).Encode(notes)
 
+}
+
+//SearchNotesForSpecifics //TODO this needs work. it currently returns no rows
+func (server Server) SearchNotesForSpecifics(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	// get the userid from the request params, key is "id"
+	vars := mux.Vars(r)
+	// convert the id type from string to int
+	id, err := strconv.Atoi(vars["id"])
+	prefix := vars["prefix"]
+	targetFunction := vars["targetFunction"]
+
+	if err != nil {
+		log.Printf("Unable to convert the string into an int. %v", err)
+	}
+	//get specific notes in the database. returns the notes and any errors
+	//input is 1-5 based on what notes we want. More functions to come maybe?
+	notes := getSpecificNotes(server.db, id, targetFunction, prefix)
+	// send all the notes as response
+	json.NewEncoder(w).Encode(notes)
 }
 
 //Login method that generates an api key and returns it to the client if the provided login information is correct

@@ -58,6 +58,7 @@ func (server Server) HandleRequests() {
 	r.HandleFunc("/api/v1/note", server.CreateNewNote).Methods("POST", "OPTIONS")
 	r.HandleFunc("/api/v1/note/{id}", server.UpdateNote).Methods("PUT", "OPTIONS")
 	r.HandleFunc("/api/v1/note/{id}", server.DeleteNote).Methods("DELETE", "OPTIONS")
+	r.HandleFunc("/api/v1/note/{id}/{targetFunction}/{prefix}", server.SearchNotesForSpecifics).Methods("GET", "OPTIONS")
 
 	r.HandleFunc("/api/v1/users", server.ReturnAllUsers).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/v1/user/{username}", server.ReturnSingleUserByName).Methods("GET", "OPTIONS")
@@ -206,7 +207,7 @@ func createTable() {
 			Title:   "James is the overlord",
 			Desc:    "The best overlord",
 			Content: "The very best overlord there is",
-			Owner:   0,
+			Owner:   1,
 			Viewers: []int{1, 2, 3},
 			Editors: []int{4, 5},
 		},
@@ -215,7 +216,7 @@ func createTable() {
 			Title:   "Joe is the Minion",
 			Desc:    "The best minion",
 			Content: "So i decree",
-			Owner:   0,
+			Owner:   1,
 			Viewers: []int{1, 2, 3},
 			Editors: []int{4, 5},
 		},
@@ -224,8 +225,8 @@ func createTable() {
 			Title:   "No joe is the boss",
 			Desc:    "The best boss",
 			Content: "So i decree",
-			Owner:   1,
-			Viewers: []int{0, 2, 3},
+			Owner:   2,
+			Viewers: []int{6, 2, 3},
 			Editors: []int{4, 5},
 		},
 	}
