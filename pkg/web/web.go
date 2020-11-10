@@ -61,7 +61,6 @@ func (server Server) HandleRequests() {
 	r.HandleFunc("/api/v1/note/{id}/{targetFunction}/{prefix}", server.SearchNotesForSpecifics).Methods("GET", "OPTIONS")
 
 	r.HandleFunc("/api/v1/users", server.ReturnAllUsers).Methods("GET", "OPTIONS")
-	r.HandleFunc("/api/v1/user/{username}", server.ReturnSingleUserByName).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/v1/user/{id}", server.ReturnSingleUser).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/v1/user", server.CreateNewUser).Methods("POST", "OPTIONS")
 	r.HandleFunc("/api/v1/user/{id}", server.UpdateUser).Methods("PUT", "OPTIONS")
@@ -69,6 +68,7 @@ func (server Server) HandleRequests() {
 
 	r.HandleFunc("/api/v1/usersnotes/{id}", server.GetAllNotesUserHasAccessTo).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/v1/login/{username}/{password}", server.Login).Methods("GET", "OPTIONS")
+	r.HandleFunc("/api/v1/user/{username}", server.ReturnSingleUserByName).Methods("GET", "OPTIONS")
 
 	r.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect)).Methods("GET", "OPTIONS")
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))

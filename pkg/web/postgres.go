@@ -277,8 +277,10 @@ func checkLogin(name string, password string, db *sql.DB) models.APIResponse {
 	users = models.ParseUserArray(rows)
 	//populate the response
 	token := GenerateToken(users[0])
+	user := users[0]
+	user.Token = token
 	fmt.Printf(token)
-	api := models.BuildAPIResponseSuccess("Login Successful", token)
+	api := models.BuildAPIResponseSuccess("Login Successful", user)
 	defer rows.Close()
 	return api
 }

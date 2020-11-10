@@ -14,7 +14,7 @@ type User struct {
 	Email    string `json:"type:varchar(100);unique_index"`
 	Gender   string `json:"Gender"`
 	Password string `json:"Password"`
-	Token    []byte `json:"Token"`
+	Token    string `json:"Token"`
 }
 
 //ParseSingleUser does a thing
