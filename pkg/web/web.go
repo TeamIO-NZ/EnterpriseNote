@@ -119,8 +119,32 @@ func createTable() {
 	Execute(db, sqlStatement)
 
 	//create the base notes table for if it doesn't exist
+	sqlStatement = `DROP SEQUENCE IF EXISTS user_sequence;`
+	//execute the sql statement and return a response
+	Execute(db, sqlStatement)
+
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `DROP SEQUENCE IF EXISTS notes_sequence;`
+	//execute the sql statement and return a response
+	Execute(db, sqlStatement)
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `CREATE SEQUENCE user_sequence
+	minvalue 0
+	start 0
+	increment 1;`
+	//execute the sql statement and return a response
+	Execute(db, sqlStatement)
+
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `CREATE SEQUENCE notes_sequence
+	minvalue 0
+	start 0
+	increment 1;`
+	//execute the sql statement and return a response
+	Execute(db, sqlStatement)
+	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS users (
-		id SERIAL PRIMARY KEY,
+		id int PRIMARY KEY,
 		name TEXT,
 		password TEXT,
 		gender TEXT,
@@ -131,7 +155,7 @@ func createTable() {
 
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS notes (
-			id SERIAL PRIMARY KEY,
+			id int PRIMARY KEY,
 			title TEXT,
 			description TEXT,
 			contents TEXT,
@@ -145,37 +169,31 @@ func createTable() {
 	// Execute(db, sqlStatement)
 	Users := []models.User{
 		models.User{
-			ID:       0,
 			Name:     "Lithial",
 			Password: "1234",
 			Email:    "me@james.me",
 		},
 		models.User{
-			ID:       1,
 			Name:     "Joe",
 			Password: "1234",
 			Email:    "you@james.me",
 		},
 		models.User{
-			ID:       2,
 			Name:     "Peter",
 			Password: "1234",
 			Email:    "us@james.me",
 		},
 		models.User{
-			ID:       3,
 			Name:     "Arran",
 			Password: "1234",
 			Email:    "re@james.me",
 		},
 		models.User{
-			ID:       4,
 			Name:     "Finn",
 			Password: "1234",
 			Email:    "de@james.me",
 		},
 		models.User{
-			ID:       5,
 			Name:     "Sam",
 			Password: "1234",
 			Email:    "la@james.me",
@@ -192,8 +210,9 @@ func createTable() {
 			log.Printf("This user name is already taken\n")
 		}
 		if canInsert == true {
-			sqlStatement := `INSERT INTO users (id,name, password,email,gender,token) VALUES ($1, $2, $3,$4,$5,$6) RETURNING id`
-			err := db.QueryRow(sqlStatement, user.ID, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)
+			sqlStatement := `INSERT INTO users (id, name, password,email,gender,token) VALUES (nextval('user_sequence'),$1, $2, $3,$4,$5) RETURNING id`
+			//fmt.Printf("offending id = %d", )
+			err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)
 			//TODO make this error message less bad
 			if err != nil {
 				log.Printf("Unable to execute the query. %v\n", err)
@@ -204,16 +223,14 @@ func createTable() {
 
 	Notes = []models.Note{
 		models.Note{
-			ID:      "0",
 			Title:   "James is the overlord",
 			Desc:    "The best overlord",
 			Content: "The very best overlord there is",
-			Owner:   1,
+			Owner:   0,
 			Viewers: []int{1, 2, 3},
 			Editors: []int{4, 5},
 		},
 		models.Note{
-			ID:      "1",
 			Title:   "Joe is the Minion",
 			Desc:    "The best minion",
 			Content: "So i decree",
@@ -222,23 +239,23 @@ func createTable() {
 			Editors: []int{4, 5},
 		},
 		models.Note{
-			ID:      "2",
 			Title:   "No joe is the boss",
 			Desc:    "The best boss",
 			Content: "So i decree",
 			Owner:   2,
-			Viewers: []int{6, 2, 3},
+			Viewers: []int{0, 2, 3},
 			Editors: []int{4, 5},
 		},
 	}
 	for _, note := range Notes {
 		fmt.Println(note.Desc)
 		var id int64
-		sqlStatement := `INSERT INTO notes (id, title, description, contents, owner, viewers, editors) VALUES ($1, $2, $3,$4,$5,$6, $7) RETURNING id`
+		sqlStatement := `INSERT INTO notes (id, title, description, contents, owner, viewers, editors) VALUES (nextval('notes_sequence'),$1,$2, $3,$4,$5,$6) RETURNING id`
 
-		err := db.QueryRow(sqlStatement, note.ID, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors)).Scan(&id)
+		err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors)).Scan(&id)
 		//TODO make this error message less bad
 		if err != nil {
+			log.Printf("note: %s is the offending note", note.Title)
 			log.Printf("Unable to execute the query. %v\n", err)
 		}
 		fmt.Printf("Inserted a single record %v\n", id)

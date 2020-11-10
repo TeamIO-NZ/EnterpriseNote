@@ -82,7 +82,7 @@ func insertNote(note models.Note, db *sql.DB) int64 {
 	PingOrPanic(db)
 	// create the insert sql query
 	// returning id will return the id of the inserted note
-	sqlStatement := `INSERT INTO notes (id,title, description, contents, owner, viewers, editors) VALUES ($1, $2, $3,$4,$5,$6,$7) RETURNING id`
+	sqlStatement := `INSERT INTO notes (id,title, description, contents, owner, viewers, editors) VALUES (nextval('notes_sequence'), $2, $3,$4,$5,$6,$7) RETURNING id`
 	// the inserted id will store in this id
 	id := QueryRowForID(db, sqlStatement, note.ID, note.Title, note.Desc, note.Title, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
 
@@ -197,8 +197,8 @@ func insertUser(user models.User, db *sql.DB) int64 {
 	}
 	//if you can insert the user then do so
 	if canInsert == true {
-		sqlStatement := `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id`
-		id = QueryRowForID(db, sqlStatement, &user.Name, &user.Password, &user.Email)
+		sqlStatement := `INSERT INTO users (id,name, email, password, gender) VALUES (nextval('user_sequence'),$1, $2, $3,$4) RETURNING id`
+		id = QueryRowForID(db, sqlStatement, &user.Name, &user.Password, &user.Email, &user.Gender)
 	}
 	return id
 }
