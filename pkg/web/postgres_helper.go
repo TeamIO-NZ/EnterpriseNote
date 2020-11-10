@@ -13,6 +13,7 @@ import (
 //QueryRowForID query a statement for a specific id return
 func QueryRowForID(db *sql.DB, sqlStatement string, args ...interface{}) int64 {
 	var id int64
+	fmt.Println(sqlStatement)
 	// execute the sql statement
 	// Scan function will save the insert id in the id
 	err := db.QueryRow(sqlStatement, args).Scan(&id)
@@ -28,6 +29,8 @@ func QueryRowForID(db *sql.DB, sqlStatement string, args ...interface{}) int64 {
 //QueryRowForType query for any type. returns the rows to be worked with. close the rows when your done
 func QueryRowForType(db *sql.DB, sqlStatement string, args ...interface{}) *sql.Rows {
 	// execute the sql statement
+	fmt.Println(sqlStatement)
+
 	if len(args) == 0 {
 		row, err := db.Query(sqlStatement)
 		if err != nil {

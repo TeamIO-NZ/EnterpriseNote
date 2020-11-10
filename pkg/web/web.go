@@ -123,6 +123,7 @@ func createTable() {
 		id SERIAL PRIMARY KEY,
 		name TEXT,
 		password TEXT,
+		gender TEXT,
 		email TEXT,
 		token TEXT
 	);`
@@ -137,46 +138,47 @@ func createTable() {
 			owner INT,
 			viewers integer[],
 			editors integer[],
-			FOREIGN KEY (owner)	REFERENCES users (id)
+			FOREIGN KEY (owner)	REFERENCES users (id) on delete cascade on update cascade
 		);`
 	Execute(db, sqlStatement)
 
 	// Execute(db, sqlStatement)
 	Users := []models.User{
 		models.User{
+			ID:       0,
 			Name:     "Lithial",
 			Password: "1234",
 			Email:    "me@james.me",
 		},
 		models.User{
+			ID:       1,
 			Name:     "Joe",
 			Password: "1234",
 			Email:    "you@james.me",
 		},
 		models.User{
+			ID:       2,
 			Name:     "Peter",
 			Password: "1234",
 			Email:    "us@james.me",
 		},
 		models.User{
+			ID:       3,
 			Name:     "Arran",
 			Password: "1234",
 			Email:    "re@james.me",
 		},
 		models.User{
+			ID:       4,
 			Name:     "Finn",
 			Password: "1234",
 			Email:    "de@james.me",
 		},
 		models.User{
+			ID:       5,
 			Name:     "Sam",
 			Password: "1234",
 			Email:    "la@james.me",
-		},
-		models.User{
-			Name:     "Sam",
-			Password: "1234",
-			Email:    "ke@james.me",
 		},
 	}
 
@@ -190,8 +192,8 @@ func createTable() {
 			log.Printf("This user name is already taken\n")
 		}
 		if canInsert == true {
-			sqlStatement := `INSERT INTO users (name, password,email) VALUES ($1, $2, $3) RETURNING id`
-			err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email).Scan(&id)
+			sqlStatement := `INSERT INTO users (id,name, password,email,gender,token) VALUES ($1, $2, $3,$4,$5,$6) RETURNING id`
+			err := db.QueryRow(sqlStatement, user.ID, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)
 			//TODO make this error message less bad
 			if err != nil {
 				log.Printf("Unable to execute the query. %v\n", err)

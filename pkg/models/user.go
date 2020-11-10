@@ -10,6 +10,7 @@ import (
 //User struct declaration
 type User struct {
 	gorm.Model
+	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"type:varchar(100);unique_index"`
 	Gender   string `json:"Gender"`
@@ -24,7 +25,7 @@ func ParseSingleUser(row *sql.Rows) User {
 	//fmt.Println("scanning a row of user stuff. awaiting crash")
 	if row.Next() {
 		// unmarshal the row object to user
-		err := row.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
+		err := row.Scan(&user.ID, &user.Name, &user.Password, &user.Gender, &user.Email, &user.Token)
 		if err != nil {
 			log.Printf("ParseSingleNote: Unable to scan the row. %v\n", err)
 		}
@@ -39,7 +40,7 @@ func ParseUserArray(rows *sql.Rows) []User {
 	for rows.Next() {
 		//fmt.Println("scanning a row of user stuff. awaiting crash")
 		// unmarshal the row object to user
-		err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Email, &user.Token)
+		err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Gender, &user.Email, &user.Token)
 		if err != nil {
 			log.Printf("ParseUserArray: Unable to scan the row. %v\n", err)
 		}

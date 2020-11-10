@@ -57,9 +57,9 @@ func updateNote(id int64, note models.Note, db *sql.DB) int64 {
 
 	PingOrPanic(db)
 	// create the update sql query
-	sqlStatement := `UPDATE notes SET title=$2, description=$3, contents=$4, owner=$5,viewers=$6,editors=$7  WHERE id=$1`
+	sqlStatement := `UPDATE notes SET id=$1, title=$2, description=$3, contents=$4, owner=$5,viewers=$6,editors=$7 WHERE id=$1`
 
-	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, note.Title, note.Desc, note.Content, &note.Owner, pq.Array(&note.Viewers), pq.Array(&note.Editors))
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
 
 	return rowsAffected
 }
@@ -82,9 +82,9 @@ func insertNote(note models.Note, db *sql.DB) int64 {
 	PingOrPanic(db)
 	// create the insert sql query
 	// returning id will return the id of the inserted note
-	sqlStatement := `INSERT INTO notes (title, description, contents, owner, viewers, editors) VALUES ($1, $2, $3,$4,$5,$6) RETURNING id`
+	sqlStatement := `INSERT INTO notes (id,title, description, contents, owner, viewers, editors) VALUES ($1, $2, $3,$4,$5,$6,$7) RETURNING id`
 	// the inserted id will store in this id
-	id := QueryRowForID(db, sqlStatement, note.Title, note.Desc, note.Title, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
+	id := QueryRowForID(db, sqlStatement, note.ID, note.Title, note.Desc, note.Title, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
 
 	// return the inserted id
 	return id

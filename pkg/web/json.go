@@ -115,7 +115,7 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Unable to convert the string into an int. %v", err)
 	}
-	fmt.Println(userid)
+	fmt.Println("This is an updating of the note")
 	var canChange = false
 	// create an empty note of type note
 	var note models.Note
@@ -125,12 +125,17 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Unable to decode the request body.  %v", err)
 	}
 	if note.Owner == userid {
+		fmt.Println("I am the owner")
 		canChange = true
-	}
-	for _, a := range note.Editors {
-		if a == userid {
-			canChange = true
-			break
+	} else {
+		fmt.Println("am i an editor")
+
+		for _, a := range note.Editors {
+			if a == userid {
+				fmt.Println("oh i am")
+				canChange = true
+				break
+			}
 		}
 	}
 	if canChange {
