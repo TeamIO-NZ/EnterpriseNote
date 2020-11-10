@@ -319,9 +319,9 @@ func (server Server) Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Methods", "GET")
-
-	username := r.Header.Get("X-Username")
-	password := r.Header.Get("X-Password")
+	vars := mux.Vars(r)
+	username := vars["username"]
+	password := vars["password"]
 	if username == "" || password == "" {
 		_ = json.NewEncoder(w).Encode(models.APIResponse{
 			Code:    400,

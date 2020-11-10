@@ -68,7 +68,7 @@ func (server Server) HandleRequests() {
 	r.HandleFunc("/api/v1/user/{id}", server.DeleteUser).Methods("DELETE", "OPTIONS")
 
 	r.HandleFunc("/api/v1/usersnotes/{id}", server.GetAllNotesUserHasAccessTo).Methods("GET", "OPTIONS")
-	r.HandleFunc("/api/v1/login", server.Login).Methods("GET")
+	r.HandleFunc("/api/v1/login/{username}/{password}", server.Login).Methods("GET", "OPTIONS")
 
 	r.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect)).Methods("GET", "OPTIONS")
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))
@@ -191,7 +191,7 @@ func createTable() {
 			log.Printf("This user name is already taken\n")
 		}
 		if canInsert == true {
-			sqlStatement := `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id`
+			sqlStatement := `INSERT INTO users (name, password,email) VALUES ($1, $2, $3) RETURNING id`
 			err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email).Scan(&id)
 			//TODO make this error message less bad
 			if err != nil {
