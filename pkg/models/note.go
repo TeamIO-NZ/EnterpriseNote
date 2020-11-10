@@ -20,23 +20,24 @@ type Note struct {
 }
 
 //ParseStringForArrayNumbers Break a string into an array of numbers
-func ParseStringForArrayNumbers(stringToBreak string, array []int) (arrayToReturn []int) {
+func ParseStringForArrayNumbers(stringToBreak string) (arrayToReturn []int) {
 	stringToBreak = strings.Replace(stringToBreak, "}", "", -1)
 	stringToBreak = strings.Replace(stringToBreak, "{", "", -1)
 
 	//split the string by the comma
 	split := strings.Split(stringToBreak, ",")
-	//loop the resulting array and convert every item to a number
-	for n := range split {
-		str, err := strconv.Atoi(fmt.Sprint(n))
+	splitLen := len(split)
+	for i := 0; i < splitLen; i++ {
+		str, err := strconv.Atoi(split[i])
 		//crash if its not a number
 		if err != nil {
 			log.Println("Oh god its broken")
 		}
 		//append it to the array
-		array = append(array, str)
+		arrayToReturn = append(arrayToReturn, str)
 	}
-	return array
+	//loop the resulting array and convert every item to a number
+	return arrayToReturn
 }
 
 //ParseNoteArray parses a note array and returns the entire array
@@ -46,16 +47,17 @@ func ParseNoteArray(rows *sql.Rows) []Note {
 	// fmt.Println("Begin scanning rows")
 	// fmt.Printf("row status = %t\n", rows.Next())
 	for rows.Next() {
-		var viewers string
-		var editors string
+		var viewers string = ""
+		var editors string = ""
 		//fmt.Println("scanning a row of note stuff. awaiting crash")
 		// unmarshal the row object to user
 		err := rows.Scan(&note.ID, &note.Title, &note.Desc, &note.Content, &note.Owner, &viewers, &editors)
 		if err != nil {
 			log.Printf("ParseSingleNote: Unable to scan the row. %v\n", err)
 		}
-		note.Viewers = ParseStringForArrayNumbers(viewers, note.Viewers)
-		note.Editors = ParseStringForArrayNumbers(editors, note.Editors)
+
+		note.Viewers = ParseStringForArrayNumbers(viewers)
+		note.Editors = ParseStringForArrayNumbers(editors)
 		// // append the user in the users slice
 		notes = append(notes, note)
 	}
@@ -74,8 +76,8 @@ func ParseSingleNote(row *sql.Rows) Note {
 		if err != nil {
 			log.Printf("ParseSingleNote: Unable to scan the row. %v\n", err)
 		}
-		note.Viewers = ParseStringForArrayNumbers(viewers, note.Viewers)
-		note.Editors = ParseStringForArrayNumbers(editors, note.Editors)
+		note.Viewers = ParseStringForArrayNumbers(viewers)
+		note.Editors = ParseStringForArrayNumbers(editors)
 	}
 	//return the note
 	return note

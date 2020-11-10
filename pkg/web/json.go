@@ -43,7 +43,7 @@ func (server Server) ReturnSingleNote(w http.ResponseWriter, r *http.Request) {
 	}
 	// call the getUser function with user id to retrieve a single user
 	note := getNote(int64(id), server.db)
-
+	fmt.Println(note)
 	// send the response
 	json.NewEncoder(w).Encode(note)
 }
@@ -105,11 +105,18 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 
 	// get the userid from the request params, key is "id"
 	vars := mux.Vars(r)
+
 	// convert the id type from string to int
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		log.Printf("Unable to convert the string into an int. %v", err)
 	}
+	userid, err := strconv.Atoi(vars["userid"])
+	if err != nil {
+		log.Printf("Unable to convert the string into an int. %v", err)
+	}
+	fmt.Println(userid)
+	var canChange = false
 	// create an empty note of type note
 	var note models.Note
 	// decode the json request to note
@@ -117,17 +124,33 @@ func (server Server) UpdateNote(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
 	}
-	// call update note to update the note
-	updatedRows := updateNote(int64(id), note, server.db)
-	// format the message string
-	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
-	// format the response message
-	res := response{
-		ID:      int64(id),
-		Message: msg,
+	if note.Owner == userid {
+		canChange = true
 	}
-	// send the response
-	json.NewEncoder(w).Encode(res)
+	for _, a := range note.Editors {
+		if a == userid {
+			canChange = true
+			break
+		}
+	}
+	if canChange {
+		// call update note to update the note
+		updatedRows := updateNote(int64(id), note, server.db)
+		// format the message string
+		msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
+		// format the response message
+		res := response{
+			ID:      int64(id),
+			Message: msg,
+		}
+		// send the response
+		json.NewEncoder(w).Encode(res)
+	} else {
+		res := models.BuildAPIResponseUnauthorized("You are not authorized to do this")
+		// send the response
+		json.NewEncoder(w).Encode(res)
+	}
+
 }
 
 //------------------------------JSON Webrequests Hander functions -- Users --------------------------------//

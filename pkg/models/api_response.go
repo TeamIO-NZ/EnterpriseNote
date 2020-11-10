@@ -25,11 +25,10 @@ func BuildAPIResponseFail(message string, data interface{}) APIResponse {
 	return api
 }
 
-//BuildAPIResponseUnaurhorized function for building all those api responses im going to write
-func BuildAPIResponseUnaurhorized(message string, data interface{}) APIResponse {
+//BuildAPIResponseUnauthorized function for building all those api responses im going to write
+func BuildAPIResponseUnauthorized(message string) APIResponse {
 	var api APIResponse
 	api.Code = 401
 	api.Message = message
-	api.Data = data
 	return api
 }
