@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -18,6 +19,13 @@ type User struct {
 	Token    string `json:"Token"`
 }
 
+//User common settings table
+type UserSettings struct {
+	ID      int   `Json:"id`
+	Viewers []int `json:"Viewers"`
+	Editors []int `json:"Editors"`
+}
+
 //ParseSingleUser does a thing
 func ParseSingleUser(row *sql.Rows) User {
 	var user User
@@ -31,6 +39,25 @@ func ParseSingleUser(row *sql.Rows) User {
 		}
 	}
 	return user
+}
+
+//ParseSingleNote Parses a single note and returns it
+func ParseSingleUserSetting(row *sql.Rows) UserSettings {
+	var userSettings UserSettings
+	var viewers string
+	var editors string
+	fmt.Println("scanning a row of note stuff. awaiting crash")
+	// unmarshal the row object to user
+	if row.Next() {
+		err := row.Scan(&userSettings.ID, &viewers, &editors)
+		if err != nil {
+			log.Printf("ParseSingleNote: Unable to scan the row. %v\n", err)
+		}
+		userSettings.Viewers = ParseStringForArrayNumbers(viewers)
+		userSettings.Editors = ParseStringForArrayNumbers(editors)
+	}
+	//return the note
+	return userSettings
 }
 
 //ParseUserArray parses a user array and returns the entire array

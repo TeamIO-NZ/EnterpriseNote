@@ -297,6 +297,115 @@ func (server Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(res)
 }
 
+//------------------------------JSON Webrequests User Settings Hander functions -- Users --------------------------------//
+
+//ReturnSingleUser Get Notes in json format by id
+//use mux to get us single notes
+func (server Server) ReturnSingleUserSettings(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	//we will need to parse the path parameters
+	vars := mux.Vars(r)
+	// we will need to extract the `id` of the article we wish to return
+	// convert the id type from string to int
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Printf("Unable to convert the string into int.  %v", err)
+	}
+	// call the getUser function with user id to retrieve a single user
+	note := getUserSettings(int64(id), server.db)
+
+	// send the response
+	json.NewEncoder(w).Encode(note)
+}
+
+//CreateNewUser Create Note in json format
+func (server Server) CreateNewUserSettings(w http.ResponseWriter, r *http.Request) {
+	// get the body of our POST request
+	// Allow all origin to handle cors issue
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	// return the string response containing the request body
+
+	var userSettings models.UserSettings
+	err := json.NewDecoder(r.Body).Decode(&userSettings)
+	if err != nil {
+		log.Printf("Unable to decode the request body.  %v", err)
+	}
+	// call insert user function and pass the note
+	insertID := insertUserSettings(userSettings, server.db)
+	// format a response object
+	res := response{
+		ID:      insertID,
+		Message: "User created successfully",
+	}
+	json.NewEncoder(w).Encode(res)
+
+}
+
+//DeleteUser deletes a note
+func (server Server) DeleteUserSettings(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
+	// once again, we will need to parse the path parameters
+	vars := mux.Vars(r)
+	// we will need to extract the `id` of the article we need to delete
+
+	// convert the id in string to int
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Printf("Unable to convert the string into int.  %v", err)
+	}
+	// call the deleteUser, convert the int to int64
+	deletedRows := deleteUserSettings(int64(id), server.db)
+
+	// format the message string
+	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
+	// format the reponse message
+	res := response{
+		ID:      int64(id),
+		Message: msg,
+	}
+	// send the response
+	json.NewEncoder(w).Encode(res)
+}
+
+//UpdateUser updates the note as json
+func (server Server) UpdateUserSettings(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "PUT")
+
+	// get the userid from the request params, key is "id"
+	vars := mux.Vars(r)
+	// convert the id type from string to int
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		log.Printf("Unable to convert the string into an int. %v", err)
+	}
+	// create an empty note of type note
+	var userSettings models.UserSettings
+
+	// decode the json request to note
+	err = json.NewDecoder(r.Body).Decode(&userSettings)
+	if err != nil {
+		log.Printf("Unable to decode the request body.  %v", err)
+	}
+	// call update note to update the note
+	updatedRows := updateuserSettings(int64(id), userSettings, server.db)
+	// format the message string
+	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
+	// format the response message
+	res := response{
+		ID:      int64(id),
+		Message: msg,
+	}
+
+	// send the response
+	json.NewEncoder(w).Encode(res)
+}
+
 //------------------------------JSON Webrequests Hander functions -- Specifics --------------------------------//
 
 //GetAllNotesUserHasAccessTo function that returns a bunch of notes with specific searching

@@ -66,6 +66,11 @@ func (server Server) HandleRequests() {
 	r.HandleFunc("/api/v1/user/{id}", server.UpdateUser).Methods("PUT", "OPTIONS")
 	r.HandleFunc("/api/v1/user/{id}", server.DeleteUser).Methods("DELETE", "OPTIONS")
 
+	r.HandleFunc("/api/v1/usersettings/{id}", server.ReturnSingleUserSettings).Methods("GET", "OPTIONS")
+	r.HandleFunc("/api/v1/usersettings", server.CreateNewUserSettings).Methods("POST", "OPTIONS")
+	r.HandleFunc("/api/v1/usersettings/{id}", server.UpdateUserSettings).Methods("PUT", "OPTIONS")
+	r.HandleFunc("/api/v1/usersettings/{id}", server.DeleteUserSettings).Methods("DELETE", "OPTIONS")
+
 	r.HandleFunc("/api/v1/usersnotes/{id}", server.GetAllNotesUserHasAccessTo).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/v1/login/{username}/{password}", server.Login).Methods("GET", "OPTIONS")
 
@@ -143,13 +148,57 @@ func createTable() {
 	//execute the sql statement and return a response
 	Execute(db, sqlStatement)
 	//create the base notes table for if it doesn't exist
+	sqlStatement = `DROP TABLE IF EXISTS userSettings;`
+	Execute(db, sqlStatement)
+
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `CREATE TABLE IF NOT EXISTS userSettings (
+			id int PRIMARY KEY,
+			viewers integer[],
+			editors integer[]
+		);`
+	Execute(db, sqlStatement)
+	UserSettings := []models.UserSettings{
+		models.UserSettings{
+			ID:      0,
+			Viewers: []int{0, 2, 3},
+			Editors: []int{4, 5},
+		},
+		models.UserSettings{
+			ID:      1,
+			Viewers: []int{0, 2, 3},
+			Editors: []int{4, 5},
+		},
+		models.UserSettings{
+			ID:      2,
+			Viewers: []int{0, 2, 3},
+			Editors: []int{4, 5},
+		},
+	}
+	for _, userSettings := range UserSettings {
+		fmt.Println(userSettings.ID)
+		var id int64
+		sqlStatement := `INSERT INTO userSettings (id, viewers,editors) VALUES ($1,$2, $3) RETURNING id`
+
+		err := db.QueryRow(sqlStatement, userSettings.ID, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors)).Scan(&id)
+		//TODO make this error message less bad
+		if err != nil {
+			log.Printf("Unable to execute the query. %v\n", err)
+		}
+		fmt.Printf("Inserted a single record %v\n", id)
+
+	}
+	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS users (
 		id int PRIMARY KEY,
 		name TEXT,
 		password TEXT,
 		gender TEXT,
 		email TEXT,
-		token TEXT
+		token TEXT,
+		userSettingsId int,
+		FOREIGN KEY (userSettingsId) REFERENCES userSettings (id) on delete cascade on update cascade
+
 	);`
 	Execute(db, sqlStatement)
 
@@ -261,4 +310,5 @@ func createTable() {
 		fmt.Printf("Inserted a single record %v\n", id)
 
 	}
+
 }

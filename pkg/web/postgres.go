@@ -90,6 +90,66 @@ func insertNote(note models.Note, db *sql.DB) int64 {
 	return id
 }
 
+//------------------------------User Common Request Handler functions- Notes-------------------------------//
+
+//getNote
+// get one user from the DB by its userid
+func getUserSettings(id int64, db *sql.DB) models.UserSettings {
+
+	PingOrPanic(db)
+	// create a user of models.User type
+	var userSettings models.UserSettings
+
+	// create the select sql query
+	sqlStatement := `SELECT * FROM userSettings WHERE id=$1`
+
+	// execute the sql statement
+	row := QueryRowForType(db, sqlStatement, id)
+	//scan the note properly
+	userSettings = models.ParseSingleUserSetting(row)
+
+	// return empty user on error
+	return userSettings
+}
+
+// update user in the DB
+func updateuserSettings(id int64, userSettings models.UserSettings, db *sql.DB) int64 {
+
+	PingOrPanic(db)
+	// create the update sql query
+	sqlStatement := `UPDATE userSettings SET id=$1, viewers=$2, editors=$3 WHERE id=$1`
+
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors))
+
+	return rowsAffected
+}
+
+// delete user in the DB
+func deleteUserSettings(id int64, db *sql.DB) int64 {
+
+	PingOrPanic(db)
+
+	// // create the delete sql query
+	sqlStatement := `DELETE FROM userSettings WHERE id=$1`
+
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id)
+
+	return rowsAffected
+}
+
+//insert note into the database
+func insertUserSettings(userSettings models.UserSettings, db *sql.DB) int64 {
+	PingOrPanic(db)
+	// create the insert sql query
+	// returning id will return the id of the inserted note
+	sqlStatement := `INSERT INTO userSettings (id, viewers, editors) VALUES (nextval('notes_sequence'), $2, $3) RETURNING id`
+	// the inserted id will store in this id
+	id := QueryRowForID(db, sqlStatement, userSettings.ID, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors))
+
+	// return the inserted id
+	return id
+}
+
 //------------------------------Main Request Handler functions- Users-------------------------------//
 
 //getNote

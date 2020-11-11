@@ -56,7 +56,7 @@ Actual Requirements
 |An email address on a domain that is only partially provided|[]|
 |Text that contains at least three of the following case sensitive words. [meeting, minutes, agenda, action, attendees, apologies]|[]|
 |A 3+ letter word thats all caps|[]|
-|Users can edit or read notes depending on privilages|[]|
+|Users can edit or read notes depending on privilages|[x]|
 |The owner of a note can add more people to note.viewers and note.editors|[]|
 |The owner of the note is also the only one who can add new people to the list of editors and viewers|[]|
 |Third table that contains userid, user.viewers array, user.editors array for ease of sharing|[]|
