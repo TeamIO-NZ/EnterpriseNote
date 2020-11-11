@@ -11,12 +11,13 @@ import (
 //User struct declaration
 type User struct {
 	gorm.Model
-	ID       int    `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"type:varchar(100);unique_index"`
-	Gender   string `json:"Gender"`
-	Password string `json:"Password"`
-	Token    string `json:"Token"`
+	ID             int    `json:"id"`
+	Name           string `json:"name"`
+	Email          string `json:"type:varchar(100);unique_index"`
+	Gender         string `json:"Gender"`
+	Password       string `json:"Password"`
+	Token          string `json:"Token"`
+	UserSettingsID int    `json:UserSettingsId`
 }
 
 //User common settings table
@@ -67,7 +68,7 @@ func ParseUserArray(rows *sql.Rows) []User {
 	for rows.Next() {
 		//fmt.Println("scanning a row of user stuff. awaiting crash")
 		// unmarshal the row object to user
-		err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Gender, &user.Email, &user.Token)
+		err := rows.Scan(&user.ID, &user.Name, &user.Password, &user.Gender, &user.Email, &user.Token, &user.UserSettingsID)
 		if err != nil {
 			log.Printf("ParseUserArray: Unable to scan the row. %v\n", err)
 		}
