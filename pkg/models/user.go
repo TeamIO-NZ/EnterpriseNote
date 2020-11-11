@@ -10,9 +10,9 @@ import (
 //User struct declaration
 type User struct {
 	gorm.Model
-	ID       int    `json:"id;unique_index"`
+	ID       int    `json:"id"`
 	Name     string `json:"name"`
-	Email    string `json:"type:varchar(100)"`
+	Email    string `json:"type:varchar(100);unique_index"`
 	Gender   string `json:"Gender"`
 	Password string `json:"Password"`
 	Token    string `json:"Token"`

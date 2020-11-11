@@ -50,7 +50,7 @@ func (server Server) Start() {
 //HandleRequests run me to make the server work
 func (server Server) HandleRequests() {
 
-	createTable()
+	//createTable()
 	r := mux.NewRouter().StrictSlash(true)
 
 	r.HandleFunc("/api/v1/notes", server.ReturnAllNotes).Methods("GET", "OPTIONS")
@@ -169,32 +169,32 @@ func createTable() {
 	// Execute(db, sqlStatement)
 	Users := []models.User{
 		models.User{
-			Name:     "Lithial",
+			Name:     "lithial",
 			Password: "1234",
 			Email:    "me@james.me",
 		},
 		models.User{
-			Name:     "Joe",
+			Name:     "joe",
 			Password: "1234",
 			Email:    "you@james.me",
 		},
 		models.User{
-			Name:     "Peter",
+			Name:     "peter",
 			Password: "1234",
 			Email:    "us@james.me",
 		},
 		models.User{
-			Name:     "Arran",
+			Name:     "arran",
 			Password: "1234",
 			Email:    "re@james.me",
 		},
 		models.User{
-			Name:     "Finn",
+			Name:     "finn",
 			Password: "1234",
 			Email:    "de@james.me",
 		},
 		models.User{
-			Name:     "Sam",
+			Name:     "sam",
 			Password: "1234",
 			Email:    "la@james.me",
 		},
