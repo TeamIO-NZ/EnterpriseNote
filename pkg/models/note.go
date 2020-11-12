@@ -27,16 +27,19 @@ func ParseStringForArrayNumbers(stringToBreak string) (arrayToReturn []int) {
 	//split the string by the comma
 	split := strings.Split(stringToBreak, ",")
 	splitLen := len(split)
-	for i := 0; i < splitLen; i++ {
-		str, err := strconv.Atoi(split[i])
-		//crash if its not a number
-		if err != nil {
-			log.Println("Oh god its broken")
+	if splitLen != 0 {
+		for i := 0; i < splitLen; i++ {
+			str, err := strconv.Atoi(split[i])
+			//crash if its not a number
+			if err != nil {
+				log.Println("Oh god its broken")
+			}
+			//append it to the array
+			arrayToReturn = append(arrayToReturn, str)
 		}
-		//append it to the array
-		arrayToReturn = append(arrayToReturn, str)
+		//loop the resulting array and convert every item to a number
+		return arrayToReturn
 	}
-	//loop the resulting array and convert every item to a number
 	return arrayToReturn
 }
 

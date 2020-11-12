@@ -64,8 +64,9 @@ func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
 	}
+	fmt.Println(note)
 	// call insert user function and pass the note
-	insertID := insertNote(note, server.db)
+	insertID, err := insertNote(note, server.db)
 	// format a response object
 	res := response{
 		ID:      insertID,

@@ -78,17 +78,21 @@ func deleteNote(id int64, db *sql.DB) int64 {
 }
 
 //insert note into the database
-func insertNote(note models.Note, db *sql.DB) int64 {
+func insertNote(note models.Note, db *sql.DB) (int64, error) {
 	PingOrPanic(db)
-
+	var id int64
 	// create the insert sql query
 	// returning id will return the id of the inserted note
 	sqlStatement := `INSERT INTO notes (id, title, description, contents, owner, viewers, editors) VALUES (nextval('notes_sequence'),$1,$2, $3,$4,$5,$6) RETURNING id`
 	// the inserted id will store in this id
-	id := QueryRowForID(db, sqlStatement, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
-
-	// return the inserted id
-	return id
+	res, err := db.Exec(sqlStatement, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
+	//TODO make this error message less bad
+	if err != nil {
+		log.Printf("note: %s is the offending note", note.Title)
+		log.Printf("Unable to execute the query. %v\n", err)
+	}
+	fmt.Println(res)
+	return id, err
 }
 
 //------------------------------User Common Request Handler functions- Notes-------------------------------//
