@@ -138,16 +138,16 @@ func createTable() {
 	Execute(db, sqlStatement)
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE SEQUENCE user_sequence
-	minvalue 0
-	start 0
+	minvalue 1
+	start 1
 	increment 1;`
 	//execute the sql statement and return a response
 	Execute(db, sqlStatement)
 
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE SEQUENCE notes_sequence
-	minvalue 0
-	start 0
+	minvalue 1
+	start 1
 	increment 1;`
 	//execute the sql statement and return a response
 	Execute(db, sqlStatement)
@@ -164,18 +164,18 @@ func createTable() {
 	Execute(db, sqlStatement)
 	UserSettings := []models.UserSettings{
 		models.UserSettings{
-			ID:      0,
-			Viewers: []int{0, 2, 3},
-			Editors: []int{4, 5},
-		},
-		models.UserSettings{
 			ID:      1,
-			Viewers: []int{0, 2, 3},
+			Viewers: []int{6, 2, 3},
 			Editors: []int{4, 5},
 		},
 		models.UserSettings{
 			ID:      2,
-			Viewers: []int{0, 2, 3},
+			Viewers: []int{1, 2, 3},
+			Editors: []int{4, 5},
+		},
+		models.UserSettings{
+			ID:      3,
+			Viewers: []int{1, 2, 3},
 			Editors: []int{4, 5},
 		},
 	}
@@ -200,7 +200,7 @@ func createTable() {
 		gender TEXT,
 		email TEXT,
 		token TEXT,
-		userSettingsId int default 0,
+		userSettingsId int default 1,
 		FOREIGN KEY (userSettingsId) REFERENCES userSettings (id) on delete cascade on update cascade
 
 	);`
@@ -285,7 +285,7 @@ func createTable() {
 			Title:   "James is the overlord",
 			Desc:    "The best overlord",
 			Content: "The very best overlord there is",
-			Owner:   0,
+			Owner:   1,
 			Viewers: []int{1, 2, 3},
 			Editors: []int{4, 5},
 		},
@@ -293,7 +293,7 @@ func createTable() {
 			Title:   "Joe is the Minion",
 			Desc:    "The best minion",
 			Content: "So i decree",
-			Owner:   1,
+			Owner:   2,
 			Viewers: []int{1, 2, 3},
 			Editors: []int{4, 5},
 		},
@@ -301,8 +301,8 @@ func createTable() {
 			Title:   "No joe is the boss",
 			Desc:    "The best boss",
 			Content: "So i decree",
-			Owner:   2,
-			Viewers: []int{0, 2, 3},
+			Owner:   3,
+			Viewers: []int{1, 2, 3},
 			Editors: []int{4, 5},
 		},
 	}
