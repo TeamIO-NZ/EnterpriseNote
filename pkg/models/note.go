@@ -10,13 +10,13 @@ import (
 
 //Note a note object for json
 type Note struct {
-	ID      string `json:"Id"`
-	Title   string `json:"Title"`
-	Desc    string `json:"Desc"`
-	Content string `json:"Content"`
-	Owner   int    `json:"Owner"`
-	Viewers []int  `json:"Viewers"`
-	Editors []int  `json:"Editors"`
+	ID      string `json:"id"`
+	Title   string `json:"title"`
+	Desc    string `json:"desc"`
+	Content string `json:"content"`
+	Owner   int    `json:"owner"`
+	Viewers []int  `json:"viewers"`
+	Editors []int  `json:"editors"`
 }
 
 //ParseStringForArrayNumbers Break a string into an array of numbers

@@ -13,11 +13,11 @@ type User struct {
 	gorm.Model
 	UserID         int    `json:"userId"`
 	Name           string `json:"name"`
-	Email          string `json:"type:varchar(100);unique_index"`
-	Gender         string `json:"Gender"`
-	Password       string `json:"Password"`
-	Token          string `json:"Token"`
-	UserSettingsID int    `json:UserSettingsId`
+	Email          string `json:"email"`
+	Gender         string `json:"gender"`
+	Password       string `json:"password"`
+	Token          string `json:"token"`
+	UserSettingsID int    `json:"usersettingsid"`
 }
 
 //User common settings table
