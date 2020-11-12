@@ -80,11 +80,12 @@ func deleteNote(id int64, db *sql.DB) int64 {
 //insert note into the database
 func insertNote(note models.Note, db *sql.DB) int64 {
 	PingOrPanic(db)
+
 	// create the insert sql query
 	// returning id will return the id of the inserted note
-	sqlStatement := `INSERT INTO notes (id,title, description, contents, owner, viewers, editors) VALUES (nextval('notes_sequence'), $2, $3,$4,$5,$6,$7) RETURNING id`
+	sqlStatement := `INSERT INTO notes (id, title, description, contents, owner, viewers, editors) VALUES (nextval('notes_sequence'),$1,$2, $3,$4,$5,$6) RETURNING id`
 	// the inserted id will store in this id
-	id := QueryRowForID(db, sqlStatement, note.ID, note.Title, note.Desc, note.Title, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
+	id := QueryRowForID(db, sqlStatement, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
 
 	// return the inserted id
 	return id

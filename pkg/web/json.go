@@ -272,8 +272,10 @@ func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 
 //DeleteUser deletes a note
 func (server Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "DELETE")
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	// once again, we will need to parse the path parameters
 	vars := mux.Vars(r)
 	// we will need to extract the `id` of the article we need to delete
