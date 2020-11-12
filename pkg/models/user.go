@@ -36,7 +36,7 @@ func ParseSingleUser(row *sql.Rows) (user User, err error) {
 		err := row.Scan(&user.UserID, &user.Name, &user.Password, &user.Gender, &user.Email, &user.Token, &user.UserSettingsID)
 		if err != nil {
 			log.Printf("ParseSingleNote: Unable to scan the row. %v\n", err)
-			return User{}, err
+			return user, err
 		}
 	}
 	return user, nil

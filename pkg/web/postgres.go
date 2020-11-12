@@ -220,13 +220,14 @@ func getAllUsers(db *sql.DB) []models.User {
 	// execute the sql statement
 	rows := QueryRowForType(db, sqlStatement)
 
-	// iterate over the rows
-	for rows.Next() {
-		user, _ := models.ParseSingleUser(rows)
-		fmt.Println(user.Name)
-		// append the user in the users slice
-		users = append(users, user)
-	}
+	users = models.ParseUserArray(rows)
+	// // iterate over the rows
+	// for rows.Next() {
+	// 	user, _ := models.ParseSingleUser(rows)
+	// 	fmt.Println(user.Name)
+	// 	// append the user in the users slice
+	// 	users = append(users, user)
+	// }
 	// return empty user on error
 	return users
 }

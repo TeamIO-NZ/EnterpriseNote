@@ -50,7 +50,7 @@ func (server Server) Start() {
 //HandleRequests run me to make the server work
 func (server Server) HandleRequests() {
 
-	createTable()
+	//createTable()
 	r := mux.NewRouter().StrictSlash(true)
 
 	r.HandleFunc("/api/v1/notes", server.ReturnAllNotes).Methods("GET", "OPTIONS")
@@ -200,7 +200,7 @@ func createTable() {
 		gender TEXT,
 		email TEXT,
 		token TEXT,
-		userSettingsId int,
+		userSettingsId int default 0,
 		FOREIGN KEY (userSettingsId) REFERENCES userSettings (id) on delete cascade on update cascade
 
 	);`
