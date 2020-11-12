@@ -257,7 +257,7 @@ func createTable() {
 		//fmt.Println(user.Name)
 		var id int64
 		canInsert := true
-		u := getUserByName(string(user.Name), db)
+		u, _ := getUserByName(string(user.Name), db)
 		if u.Name == user.Name {
 			canInsert = false
 			log.Printf("This user name is already taken\n")

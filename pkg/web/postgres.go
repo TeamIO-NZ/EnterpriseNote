@@ -164,7 +164,7 @@ func getUser(id int64, db *sql.DB) models.User {
 	row := QueryRowForType(db, sqlStatement, id)
 
 	// unmarshal the row object to user
-	user := models.ParseSingleUser(row)
+	user, _ := models.ParseSingleUser(row)
 
 	// return empty user on error
 	return user
@@ -172,7 +172,7 @@ func getUser(id int64, db *sql.DB) models.User {
 
 //getNote
 // get one user from the DB by its userid
-func getUserByName(name string, db *sql.DB) models.User {
+func getUserByName(name string, db *sql.DB) (models.User, error) {
 	// check the connection
 	PingOrPanic(db)
 	//fmt.Println("searching user by name")
@@ -183,14 +183,14 @@ func getUserByName(name string, db *sql.DB) models.User {
 	row := QueryRowForType(db, sqlStatement, name)
 
 	// unmarshal the row object to user
-	user := models.ParseSingleUser(row)
+	user, err := models.ParseSingleUser(row)
 
 	// return empty user on error
-	return user
+	return user, err
 }
 
 // get one user from the DB by its userid
-func getUserByEmail(email string, db *sql.DB) models.User {
+func getUserByEmail(email string, db *sql.DB) (models.User, error) {
 	// check the connection
 	PingOrPanic(db)
 	//fmt.Println("searching user by name")
@@ -201,10 +201,10 @@ func getUserByEmail(email string, db *sql.DB) models.User {
 	row := QueryRowForType(db, sqlStatement, email)
 
 	// unmarshal the row object to user
-	user := models.ParseSingleUser(row)
+	user, err := models.ParseSingleUser(row)
 
 	// return empty user on error
-	return user
+	return user, err
 }
 
 // get one user from the DB by its userid
@@ -222,7 +222,7 @@ func getAllUsers(db *sql.DB) []models.User {
 
 	// iterate over the rows
 	for rows.Next() {
-		user := models.ParseSingleUser(rows)
+		user, _ := models.ParseSingleUser(rows)
 		// append the user in the users slice
 		users = append(users, user)
 	}
@@ -267,7 +267,7 @@ func insertUser(user models.User, db *sql.DB) int64 {
 
 	var id int64
 	canInsert := true
-	u := getUserByName(string(user.Name), db)
+	u, _ := getUserByName(string(user.Name), db)
 	//check to see if a user name is taken
 	if u.Name == user.Name {
 		canInsert = false
