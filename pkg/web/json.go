@@ -207,7 +207,7 @@ func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Reque
 	// call the getUser function with user id to retrieve a single user
 	note, err := getUserByName(name, server.db)
 	if err != nil {
-		json.NewEncoder(w).Encode(models.BuildAPIResponseFail("Username not found", nil))
+		json.NewEncoder(w).Encode(models.BuildAPIResponseFail("Username in use", nil))
 		return
 	}
 
@@ -230,7 +230,7 @@ func (server Server) ReturnSingleUserByEmail(w http.ResponseWriter, r *http.Requ
 	// call the getUser function with user id to retrieve a single user
 	user, err := getUserByEmail(email, server.db)
 	if err != nil {
-		json.NewEncoder(w).Encode(models.BuildAPIResponseFail("Email not found", nil))
+		json.NewEncoder(w).Encode(models.BuildAPIResponseFail("Email in use", nil))
 		return
 	}
 
