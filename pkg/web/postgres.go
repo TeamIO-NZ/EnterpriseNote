@@ -205,6 +205,7 @@ func getAllUsers(db *sql.DB) []models.User {
 	// iterate over the rows
 	for rows.Next() {
 		user := models.ParseSingleUser(rows)
+		fmt.Println(user.Name)
 		// append the user in the users slice
 		users = append(users, user)
 	}
