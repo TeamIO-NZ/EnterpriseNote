@@ -158,7 +158,7 @@ func getUser(id int64, db *sql.DB) models.User {
 	PingOrPanic(db)
 
 	// create the select sql query
-	sqlStatement := `SELECT * FROM users WHERE id=$1`
+	sqlStatement := `SELECT * FROM users WHERE userId=$1`
 
 	// execute the sql statement
 	row := QueryRowForType(db, sqlStatement, id)
@@ -238,7 +238,7 @@ func updateUser(id int64, user models.User, db *sql.DB) int64 {
 	PingOrPanic(db)
 
 	// create the update sql query
-	sqlStatement := `UPDATE users SET name=$2, email=$3, password=$4 WHERE id=$1`
+	sqlStatement := `UPDATE users SET name=$2, email=$3, password=$4 WHERE userId=$1`
 
 	// check how many rows affected
 	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, user.Name, user.Email, user.Password)
@@ -253,7 +253,7 @@ func deleteUser(id int64, db *sql.DB) int64 {
 	PingOrPanic(db)
 
 	// create the delete sql query
-	sqlStatement := `DELETE FROM users WHERE id=$1`
+	sqlStatement := `DELETE FROM users WHERE userId=$1`
 
 	// check how many rows affected
 	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id)
@@ -276,7 +276,7 @@ func insertUser(user models.User, db *sql.DB) int64 {
 	}
 	//if you can insert the user then do so
 	if canInsert == true {
-		sqlStatement := `INSERT INTO users (id,name, email, password, gender) VALUES (nextval('user_sequence'),$1, $2, $3,$4) RETURNING id`
+		sqlStatement := `INSERT INTO users (userId,name, email, password, gender) VALUES (nextval('user_sequence'),$1, $2, $3,$4) RETURNING userId`
 		id = QueryRowForID(db, sqlStatement, &user.Name, &user.Email, &user.Password, &user.Gender)
 	}
 	return id

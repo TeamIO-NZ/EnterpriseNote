@@ -50,7 +50,7 @@ func (server Server) Start() {
 //HandleRequests run me to make the server work
 func (server Server) HandleRequests() {
 
-	//createTable()
+	createTable()
 	r := mux.NewRouter().StrictSlash(true)
 
 	r.HandleFunc("/api/v1/notes", server.ReturnAllNotes).Methods("GET", "OPTIONS")
@@ -194,7 +194,7 @@ func createTable() {
 	}
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS users (
-		id int PRIMARY KEY,
+		userId int PRIMARY KEY,
 		name TEXT,
 		password TEXT,
 		gender TEXT,
@@ -215,41 +215,47 @@ func createTable() {
 			owner INT,
 			viewers integer[],
 			editors integer[],
-			FOREIGN KEY (owner)	REFERENCES users (id) on delete cascade on update cascade
+			FOREIGN KEY (owner)	REFERENCES users (userId) on delete cascade on update cascade
 		);`
 	Execute(db, sqlStatement)
 
 	// Execute(db, sqlStatement)
 	Users := []models.User{
 		models.User{
-			Name:     "lithial",
-			Password: "1234",
-			Email:    "me@james.me",
+			Name:           "lithial",
+			Password:       "1234",
+			Email:          "me@james.me",
+			UserSettingsID: 0,
 		},
 		models.User{
-			Name:     "joe",
-			Password: "1234",
-			Email:    "you@james.me",
+			Name:           "joe",
+			Password:       "1234",
+			Email:          "you@james.me",
+			UserSettingsID: 0,
 		},
 		models.User{
-			Name:     "peter",
-			Password: "1234",
-			Email:    "us@james.me",
+			Name:           "peter",
+			Password:       "1234",
+			Email:          "us@james.me",
+			UserSettingsID: 0,
 		},
 		models.User{
-			Name:     "arran",
-			Password: "1234",
-			Email:    "re@james.me",
+			Name:           "arran",
+			Password:       "1234",
+			Email:          "re@james.me",
+			UserSettingsID: 0,
 		},
 		models.User{
-			Name:     "finn",
-			Password: "1234",
-			Email:    "de@james.me",
+			Name:           "finn",
+			Password:       "1234",
+			Email:          "de@james.me",
+			UserSettingsID: 0,
 		},
 		models.User{
-			Name:     "sam",
-			Password: "1234",
-			Email:    "la@james.me",
+			Name:           "sam",
+			Password:       "1234",
+			Email:          "la@james.me",
+			UserSettingsID: 0,
 		},
 	}
 
@@ -263,7 +269,7 @@ func createTable() {
 			log.Printf("This user name is already taken\n")
 		}
 		if canInsert == true {
-			sqlStatement := `INSERT INTO users (id, name, password,email,gender,token) VALUES (nextval('user_sequence'),$1, $2, $3,$4,$5) RETURNING id`
+			sqlStatement := `INSERT INTO users (userId, name, password,email,gender,token) VALUES (nextval('user_sequence'),$1, $2, $3,$4,$5) RETURNING userId`
 			//fmt.Printf("offending id = %d", )
 			err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)
 			//TODO make this error message less bad
