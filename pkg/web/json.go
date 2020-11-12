@@ -471,3 +471,11 @@ func (server Server) Login(w http.ResponseWriter, r *http.Request) {
 	//encode the data
 	json.NewEncoder(w).Encode(data)
 }
+
+func (server Server) CheckConnection(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+
+	json.NewEncoder(w).Encode(models.BuildAPIResponseSuccess("Success", nil))
+}
