@@ -260,12 +260,14 @@ func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
 	}
-	// call insert user function and pass the note
-	insertID := testInsert(user, server.db)
-	// format a response object
-	res := response{
-		ID:      insertID,
-		Message: "User created successfully",
+	var res models.APIResponse
+	if user.Name == "" || user.Email == "" || user.Password == "" {
+		res = models.BuildAPIResponseFail("Blank users cannot be created", nil)
+	} else {
+		// call insert user function and pass the note
+		insertID := testInsert(user, server.db)
+		// format a response object
+		res = models.BuildAPIResponseSuccess(fmt.Sprintf("User Created with %d id", insertID), nil)
 	}
 	json.NewEncoder(w).Encode(res)
 

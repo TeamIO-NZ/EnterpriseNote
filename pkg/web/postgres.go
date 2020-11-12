@@ -282,7 +282,7 @@ func insertUser(user models.User, db *sql.DB) int64 {
 
 	//if you can insert the user then do so
 	if canInsert == true {
-		sqlStatement := `INSERT INTO users (userId,name, email, password, gender) VALUES (nextval('user_sequence'),$1, $2, $3,$4) RETURNING userId`
+		sqlStatement := `INSERT INTO users (name, email, password, gender) VALUES ($1, $2, $3,$4) RETURNING userId`
 		id = QueryRowForID(db, sqlStatement, &user.Name, &user.Email, &user.Password, &user.Gender)
 		fmt.Printf("Created user with id of %d", id)
 	}
@@ -298,7 +298,7 @@ func testInsert(user models.User, db *sql.DB) int64 {
 		log.Printf("This user name is free")
 	}
 	if canInsert == true {
-		sqlStatement := `INSERT INTO users (userId, name, password,email,gender,token) VALUES (nextval('user_sequence'),$1, $2, $3,$4,$5) RETURNING userId`
+		sqlStatement := `INSERT INTO users (name, password,email,gender,token) VALUES ($1, $2, $3,$4,$5) RETURNING userId`
 		//fmt.Printf("offending id = %d", )
 		err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)
 		//TODO make this error message less bad
