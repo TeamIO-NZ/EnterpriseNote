@@ -355,6 +355,9 @@ func checkLogin(name string, password string, db *sql.DB) models.APIResponse {
 	var users []models.User
 	//populate the users array
 	users = models.ParseUserArray(rows)
+	if len(users) == 0 {
+		return models.BuildAPIResponseFail("No users founds.", nil)
+	}
 	//populate the response
 	token := GenerateToken(users[0])
 	user := users[0]
