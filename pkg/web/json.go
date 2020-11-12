@@ -211,6 +211,25 @@ func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(note)
 }
 
+//ReturnSingleUserByName Get Notes in json format by username
+//use mux to get us single notes
+func (server Server) ReturnSingleUserByEmail(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Methods", "GET")
+	//we will need to parse the path parameters
+	vars := mux.Vars(r)
+	// we will need to extract the `id` of the article we wish to return
+	// convert the id type from string to int
+	email := vars["email"]
+
+	// call the getUser function with user id to retrieve a single user
+	note := getUserByName(email, server.db)
+
+	// send the response
+	json.NewEncoder(w).Encode(note)
+}
+
 //CreateNewUser Create Note in json format
 func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 	// get the body of our POST request

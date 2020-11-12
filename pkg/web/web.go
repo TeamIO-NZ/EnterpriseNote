@@ -62,6 +62,8 @@ func (server Server) HandleRequests() {
 
 	r.HandleFunc("/api/v1/users", server.ReturnAllUsers).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/v1/user/{id}", server.ReturnSingleUser).Methods("GET", "OPTIONS")
+	r.HandleFunc("/api/v1/user/{username}", server.ReturnSingleUserByName).Methods("GET", "OPTIONS")
+	r.HandleFunc("/api/v1/user/{email}", server.ReturnSingleUserByEmail).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/v1/user", server.CreateNewUser).Methods("POST", "OPTIONS")
 	r.HandleFunc("/api/v1/user/{id}", server.UpdateUser).Methods("PUT", "OPTIONS")
 	r.HandleFunc("/api/v1/user/{id}", server.DeleteUser).Methods("DELETE", "OPTIONS")

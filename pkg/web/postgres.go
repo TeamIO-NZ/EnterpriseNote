@@ -190,6 +190,24 @@ func getUserByName(name string, db *sql.DB) models.User {
 }
 
 // get one user from the DB by its userid
+func getUserByEmail(email string, db *sql.DB) models.User {
+	// check the connection
+	PingOrPanic(db)
+	//fmt.Println("searching user by name")
+	// create the select sql query
+	sqlStatement := `SELECT * FROM users WHERE email=$1`
+
+	// execute the sql statement
+	row := QueryRowForType(db, sqlStatement, email)
+
+	// unmarshal the row object to user
+	user := models.ParseSingleUser(row)
+
+	// return empty user on error
+	return user
+}
+
+// get one user from the DB by its userid
 func getAllUsers(db *sql.DB) []models.User {
 	// check the connection
 	PingOrPanic(db)
