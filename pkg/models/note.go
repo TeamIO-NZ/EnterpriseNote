@@ -21,6 +21,10 @@ type Note struct {
 
 //ParseStringForArrayNumbers Break a string into an array of numbers
 func ParseStringForArrayNumbers(stringToBreak string) (arrayToReturn []int) {
+
+	if stringToBreak == "{}" {
+		return arrayToReturn
+	}
 	stringToBreak = strings.Replace(stringToBreak, "}", "", -1)
 	stringToBreak = strings.Replace(stringToBreak, "{", "", -1)
 

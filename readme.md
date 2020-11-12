@@ -39,16 +39,16 @@ Save
 Enterprise note is an online notebook program.
 
 Actual Requirements
-|Requirement|Status|
-|--|--|
-|User can create account|[x]|
-|Users can create note|[x]|
-|User who creates note is owner of note|[]|
-|All users have access to the list of users|[]|
+|Requirement|Status|Comments|
+|--|--|---|
+|User can create account|[x]|done|
+|Users can create note|[x]|done|
+|User who creates note is owner of note|[x]|done|
+|All users have access to the list of users|[x]|done on the front end|
 |A note can be shared with other user|[]|
 |Note share read privilages|[]|
 |Note share edit privilages|[]|
-|Notes contain just text and meta data|[]|
+|Notes contain just text and meta data|[x]|ours also contains a subtitle and the ability to do markdown|
 |ability to filter notes you can access|[]|
 |Users can count occurences of the following among notes they have access to|[]|
 |A sentence with a given prefix or suffix|[]|
@@ -59,21 +59,7 @@ Actual Requirements
 |Users can edit or read notes depending on privilages|[x]|
 |The owner of a note can add more people to note.viewers and note.editors|[]|
 |The owner of the note is also the only one who can add new people to the list of editors and viewers|[]|
-|Third table that contains userid, user.viewers array, user.editors array for ease of sharing|[]|
+|Third table that contains userid, user.viewers array, user.editors array for ease of sharing|[x]|
 |Ability to apply said common settings to a note|[]|
-
-
-Front end settings
-|Feature|Status|
-|---|---|
-|Login Page for selecting current user|[]|
-|Register Page for making new users|[]|
-|Home Page that shows all notes a user has access to|[]|
-|Note access page/component for displaying note information|[]|
-|Note edit button that allows changes with a submit button|[]|
-|Note access change button that opens access screen|[]|
-|Access screen has a list of users that can read and edit this note|[]|
-|Access screen has a dropdown of all the users and a radio button for no access, viewer, editor|[]|
-|Search bar for filtering and counting|[]|
 
 
