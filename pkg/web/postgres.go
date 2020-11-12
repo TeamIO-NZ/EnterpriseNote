@@ -268,13 +268,13 @@ func insertUser(user models.User, db *sql.DB) int64 {
 	PingOrPanic(db)
 
 	var id int64
-	canInsert := true
-	u, _ := getUserByName(string(user.Name), db)
-	//check to see if a user name is taken
-	if u.Name == user.Name {
-		canInsert = false
-		log.Printf("This user name is already taken\n")
+	canInsert := false
+	_, err := getUserByName(string(user.Name), db)
+	if err != nil {
+		canInsert = true
+		log.Printf("This user name is free")
 	}
+
 	//if you can insert the user then do so
 	if canInsert == true {
 		sqlStatement := `INSERT INTO users (userId,name, email, password, gender) VALUES (nextval('user_sequence'),$1, $2, $3,$4) RETURNING userId`
