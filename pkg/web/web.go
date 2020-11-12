@@ -128,15 +128,24 @@ func createTable() {
 	Execute(db, sqlStatement)
 
 	//create the base notes table for if it doesn't exist
-	sqlStatement = `DROP SEQUENCE IF EXISTS user_sequence;`
+	sqlStatement = `DROP SEQUENCE IF EXISTS user_id_sequence;`
 	//execute the sql statement and return a response
 	Execute(db, sqlStatement)
 
 	//create the base notes table for if it doesn't exist
-	sqlStatement = `DROP SEQUENCE IF EXISTS notes_sequence;`
+	sqlStatement = `DROP SEQUENCE IF EXISTS notes_userid_sequence;`
 	//execute the sql statement and return a response
 	Execute(db, sqlStatement)
 
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `DROP SEQUENCE IF EXISTS usersettings_id_sequence;`
+	//execute the sql statement and return a response
+	Execute(db, sqlStatement)
+
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `DROP SEQUENCE IF EXISTS zero_index_auto_increment;`
+	//execute the sql statement and return a response
+	Execute(db, sqlStatement)
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `DROP TABLE IF EXISTS userSettings;`
 	Execute(db, sqlStatement)
