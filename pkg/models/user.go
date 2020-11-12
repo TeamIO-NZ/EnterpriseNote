@@ -28,18 +28,18 @@ type UserSettings struct {
 }
 
 //ParseSingleUser does a thing
-func ParseSingleUser(row *sql.Rows) User {
-	var user User
+func ParseSingleUser(row *sql.Rows) (user User, err error) {
 
 	//fmt.Println("scanning a row of user stuff. awaiting crash")
 	if row.Next() {
 		// unmarshal the row object to user
 		err := row.Scan(&user.UserID, &user.Name, &user.Password, &user.Gender, &user.Email, &user.Token, &user.UserSettingsID)
 		if err != nil {
-			log.Printf("ParseSingleUser: Unable to scan the row. %v\n", err)
+			log.Printf("ParseSingleNote: Unable to scan the row. %v\n", err)
+			return User{}, err
 		}
 	}
-	return user
+	return user, nil
 }
 
 //ParseSingleNote Parses a single note and returns it

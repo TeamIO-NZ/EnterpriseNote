@@ -205,7 +205,11 @@ func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Reque
 	name := vars["username"]
 
 	// call the getUser function with user id to retrieve a single user
-	note := getUserByName(name, server.db)
+	note, err := getUserByName(name, server.db)
+	if err != nil {
+		json.NewEncoder(w).Encode(models.BuildAPIResponseFail("Username not found", nil))
+		return
+	}
 
 	// send the response
 	json.NewEncoder(w).Encode(note)
@@ -224,10 +228,15 @@ func (server Server) ReturnSingleUserByEmail(w http.ResponseWriter, r *http.Requ
 	email := vars["email"]
 
 	// call the getUser function with user id to retrieve a single user
-	note := getUserByName(email, server.db)
+	user, err := getUserByEmail(email, server.db)
+	if err != nil {
+		json.NewEncoder(w).Encode(models.BuildAPIResponseFail("Email not found", nil))
+		return
+	}
 
 	// send the response
-	json.NewEncoder(w).Encode(note)
+	json.NewEncoder(w).Encode(user)
+
 }
 
 //CreateNewUser Create Note in json format
