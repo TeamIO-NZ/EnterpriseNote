@@ -258,7 +258,7 @@ func insertUser(user models.User, db *sql.DB) int64 {
 	//if you can insert the user then do so
 	if canInsert == true {
 		sqlStatement := `INSERT INTO users (id,name, email, password, gender) VALUES (nextval('user_sequence'),$1, $2, $3,$4) RETURNING id`
-		id = QueryRowForID(db, sqlStatement, &user.Name, &user.Password, &user.Email, &user.Gender)
+		id = QueryRowForID(db, sqlStatement, &user.Name, &user.Email, &user.Password, &user.Gender)
 	}
 	return id
 }
