@@ -255,8 +255,6 @@ func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
-	fmt.Println("The offending body request")
-	fmt.Println(r.Body)
 
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
