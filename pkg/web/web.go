@@ -136,28 +136,14 @@ func createTable() {
 	sqlStatement = `DROP SEQUENCE IF EXISTS notes_sequence;`
 	//execute the sql statement and return a response
 	Execute(db, sqlStatement)
-	//create the base notes table for if it doesn't exist
-	sqlStatement = `CREATE SEQUENCE user_sequence
-	minvalue 1
-	start 1
-	increment 1;`
-	//execute the sql statement and return a response
-	Execute(db, sqlStatement)
 
-	//create the base notes table for if it doesn't exist
-	sqlStatement = `CREATE SEQUENCE notes_sequence
-	minvalue 1
-	start 1
-	increment 1;`
-	//execute the sql statement and return a response
-	Execute(db, sqlStatement)
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `DROP TABLE IF EXISTS userSettings;`
 	Execute(db, sqlStatement)
 
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS userSettings (
-			id int PRIMARY KEY,
+			id Serial PRIMARY KEY,
 			viewers integer[],
 			editors integer[]
 		);`
@@ -194,7 +180,7 @@ func createTable() {
 	}
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS users (
-		userId int PRIMARY KEY,
+		userId serial PRIMARY KEY,
 		name TEXT,
 		password TEXT,
 		gender TEXT,
@@ -208,7 +194,7 @@ func createTable() {
 
 	//create the base notes table for if it doesn't exist
 	sqlStatement = `CREATE TABLE IF NOT EXISTS notes (
-			id int PRIMARY KEY,
+			id serial PRIMARY KEY,
 			title TEXT,
 			description TEXT,
 			contents TEXT,
@@ -269,7 +255,7 @@ func createTable() {
 			log.Printf("This user name is already taken\n")
 		}
 		if canInsert == true {
-			sqlStatement := `INSERT INTO users (userId, name, password,email,gender,token) VALUES (nextval('user_sequence'),$1, $2, $3,$4,$5) RETURNING userId`
+			sqlStatement := `INSERT INTO users (name, password,email,gender,token) VALUES ($1, $2, $3,$4,$5) RETURNING userId`
 			//fmt.Printf("offending id = %d", )
 			err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)
 			//TODO make this error message less bad
@@ -309,7 +295,7 @@ func createTable() {
 	for _, note := range Notes {
 		fmt.Println(note.Desc)
 		var id int64
-		sqlStatement := `INSERT INTO notes (id, title, description, contents, owner, viewers, editors) VALUES (nextval('notes_sequence'),$1,$2, $3,$4,$5,$6) RETURNING id`
+		sqlStatement := `INSERT INTO notes (title, description, contents, owner, viewers, editors) VALUES ($1,$2, $3,$4,$5,$6) RETURNING id`
 
 		err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors)).Scan(&id)
 		//TODO make this error message less bad
