@@ -147,7 +147,7 @@ func insertUserSettings(userSettings models.UserSettings, db *sql.DB) int64 {
 	PingOrPanic(db)
 	// create the insert sql query
 	// returning id will return the id of the inserted note
-	sqlStatement := `INSERT INTO userSettings (id, viewers, editors) VALUES (nextval('notes_sequence'), $2, $3) RETURNING id`
+	sqlStatement := `INSERT INTO userSettings (id, viewers, editors) VALUES (nextval('users_sequence'), $2, $3) RETURNING id`
 	// the inserted id will store in this id
 	id := QueryRowForID(db, sqlStatement, userSettings.ID, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors))
 
