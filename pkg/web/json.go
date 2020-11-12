@@ -255,11 +255,14 @@ func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
+	fmt.Println("The offending body request")
+	fmt.Println(r.Body)
+
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
 	}
 	// call insert user function and pass the note
-	insertID := insertUser(user, server.db)
+	insertID := testInsert(user, server.db)
 	// format a response object
 	res := response{
 		ID:      insertID,
@@ -372,7 +375,7 @@ func (server Server) CreateNewUserSettings(w http.ResponseWriter, r *http.Reques
 	// format a response object
 	res := response{
 		ID:      insertID,
-		Message: "User created successfully",
+		Message: "User settings created successfully",
 	}
 	json.NewEncoder(w).Encode(res)
 

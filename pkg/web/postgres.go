@@ -279,6 +279,28 @@ func insertUser(user models.User, db *sql.DB) int64 {
 	if canInsert == true {
 		sqlStatement := `INSERT INTO users (userId,name, email, password, gender) VALUES (nextval('user_sequence'),$1, $2, $3,$4) RETURNING userId`
 		id = QueryRowForID(db, sqlStatement, &user.Name, &user.Email, &user.Password, &user.Gender)
+		fmt.Printf("Created user with id of %d", id)
+	}
+	return id
+}
+func testInsert(user models.User, db *sql.DB) int64 {
+	//fmt.Println(user.Name)
+	var id int64
+	canInsert := true
+	_, err := getUserByName(string(user.Name), db)
+	if err != nil {
+		canInsert = true
+		log.Printf("This user name is free")
+	}
+	if canInsert == true {
+		sqlStatement := `INSERT INTO users (userId, name, password,email,gender,token) VALUES (nextval('user_sequence'),$1, $2, $3,$4,$5) RETURNING userId`
+		//fmt.Printf("offending id = %d", )
+		err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)
+		//TODO make this error message less bad
+		if err != nil {
+			log.Printf("Unable to execute the query. %v\n", err)
+		}
+		fmt.Printf("Inserted a single record %v\n", id)
 	}
 	return id
 }
