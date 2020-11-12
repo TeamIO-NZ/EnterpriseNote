@@ -64,6 +64,7 @@ func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 
 //DeleteNote deletes a note
 func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
+	log.Println("Deleting note start")
 	// once again, we will need to parse the path parameters
 	vars := mux.Vars(r)
 	// we will need to extract the `id` of the article we need to delete
@@ -72,8 +73,9 @@ func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Printf("Unable to convert the string into int.  %v", err)
 	}
+	log.Println("Deleting note")
 	// call the deleteUser, convert the int to int64
-	deletedRows := deleteNote(int64(id), server.db)
+	deletedRows := deleteNote(id, server.db)
 
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)

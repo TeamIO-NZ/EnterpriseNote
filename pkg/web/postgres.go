@@ -65,7 +65,7 @@ func updateNote(id int64, note models.Note, db *sql.DB) int64 {
 }
 
 // delete user in the DB
-func deleteNote(id int64, db *sql.DB) int64 {
+func deleteNote(id int, db *sql.DB) int64 {
 
 	PingOrPanic(db)
 

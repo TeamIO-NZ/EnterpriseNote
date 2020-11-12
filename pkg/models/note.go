@@ -10,7 +10,7 @@ import (
 
 //Note a note object for json
 type Note struct {
-	ID      string `json:"id"`
+	ID      int    `json:"id"`
 	Title   string `json:"title"`
 	Desc    string `json:"desc"`
 	Content string `json:"content"`
