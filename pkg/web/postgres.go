@@ -59,7 +59,7 @@ func updateNote(id int64, note models.Note, db *sql.DB) int64 {
 	// create the update sql query
 	sqlStatement := `UPDATE notes SET id=$1, title=$2, description=$3, contents=$4, owner=$5,viewers=$6,editors=$7 WHERE id=$1`
 
-	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, note.ID, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
 
 	return rowsAffected
 }
