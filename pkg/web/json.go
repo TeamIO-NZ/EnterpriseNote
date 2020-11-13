@@ -54,10 +54,11 @@ func (server Server) CreateNewNote(w http.ResponseWriter, r *http.Request) {
 	// call insert user function and pass the note
 	insertID, err := insertNote(note, server.db)
 	// format a response object
-	res := response{
-		ID:      insertID,
-		Message: "Note created successfully",
-	}
+	// res := response{
+	// 	ID:      insertID,
+	// 	Message: "Note created successfully",
+	// }
+	res := models.BuildAPIResponseSuccess("User created successfully", insertID)
 	json.NewEncoder(w).Encode(res)
 
 }
