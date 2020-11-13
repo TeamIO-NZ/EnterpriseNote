@@ -82,7 +82,7 @@ func (server Server) HandleRequests() {
 	r.Handle("/", http.RedirectHandler("/web/", http.StatusPermanentRedirect))
 	r.PathPrefix("/web/").Handler(http.StripPrefix("/web/", http.FileServer(http.Dir("web/"))))
 	log.Fatal(http.ListenAndServe(":"+port, handlers.CORS(
-		handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "Access-Control-Allow-Headers", "Origin", "Accept", "Access-Control-Request-Method"}),
+		handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization", "Access-Control-Allow-Headers", "Origin", "Accept", "Access-Control-Request-Method", "Access-Control-Allow-Methods"}),
 		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "HEAD", "OPTIONS", "DELETE"}),
 		handlers.AllowedOrigins([]string{"*"}))(r)))
 }
