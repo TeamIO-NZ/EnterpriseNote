@@ -43,7 +43,7 @@ func (server Server) Start() {
 		//zap.S().Warn("No webserver port config detected, using 8080.")
 	}
 
-	server.db = createConnection()
+	server.db = CreateConnection()
 	server.HandleRequests()
 	server.db.Close()
 }
@@ -94,7 +94,7 @@ func (server Server) HandleRequests() {
 
 //------------------------------SQL Hander functions--------------------------------//
 // create connection with postgres db
-func createConnection() *sql.DB {
+func CreateConnection() *sql.DB {
 	// load .env file
 
 	err := godotenv.Load(".env")
@@ -117,7 +117,7 @@ func createConnection() *sql.DB {
 //populates database with fake data
 func createTable() {
 	//creates database connection
-	db := createConnection()
+	db := CreateConnection()
 	//prepares to close database when done
 	defer db.Close()
 

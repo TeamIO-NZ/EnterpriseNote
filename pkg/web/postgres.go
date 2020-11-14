@@ -234,6 +234,7 @@ func getAllUsers(db *sql.DB) []models.User {
 	// 	users = append(users, user)
 	// }
 	// return empty user on error
+	defer rows.Close()
 	return users
 }
 

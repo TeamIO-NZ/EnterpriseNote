@@ -67,12 +67,17 @@ func QueryRowForType(db *sql.DB, sqlStatement string, args ...interface{}) *sql.
 }
 
 //PingOrPanic this is to ping the database and panic the error if something is wrong
-func PingOrPanic(db *sql.DB) {
+func PingOrPanic(db *sql.DB) *sql.DB {
+
 	// check the connection
 	err := db.Ping()
 	if err != nil {
-		panic(err)
+		log.Printf("Database Error %v", err)
+		db.Close()
+		newDb := CreateConnection()
+		return newDb
 	}
+	return nil
 }
 
 //Execute does statements
