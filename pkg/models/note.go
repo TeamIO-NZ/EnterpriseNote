@@ -86,6 +86,7 @@ func ParseSingleNote(row *sql.Rows) Note {
 		note.Viewers = ParseStringForArrayNumbers(viewers)
 		note.Editors = ParseStringForArrayNumbers(editors)
 	}
+	defer row.Close()
 	//return the note
 	return note
 }

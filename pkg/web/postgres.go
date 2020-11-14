@@ -112,7 +112,7 @@ func getUserSettings(id int64, db *sql.DB) models.UserSettings {
 	row := QueryRowForType(db, sqlStatement, id)
 	//scan the note properly
 	userSettings = models.ParseSingleUserSetting(row)
-
+	defer row.Close()
 	// return empty user on error
 	return userSettings
 }
@@ -195,7 +195,7 @@ func getUser(id int64, db *sql.DB) models.User {
 
 	// unmarshal the row object to user
 	user, _ := models.ParseSingleUser(row)
-
+	defer row.Close()
 	// return empty user on error
 	return user
 }
@@ -214,7 +214,7 @@ func getUserByName(name string, db *sql.DB) (models.User, error) {
 
 	// unmarshal the row object to user
 	user, err := models.ParseSingleUser(row)
-
+	defer row.Close()
 	// return empty user on error
 	return user, err
 }
@@ -232,7 +232,7 @@ func getUserByEmail(email string, db *sql.DB) (models.User, error) {
 
 	// unmarshal the row object to user
 	user, err := models.ParseSingleUser(row)
-
+	defer row.Close()
 	// return empty user on error
 	return user, err
 }

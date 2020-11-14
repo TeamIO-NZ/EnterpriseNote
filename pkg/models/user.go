@@ -39,6 +39,7 @@ func ParseSingleUser(row *sql.Rows) (user User, err error) {
 			return user, err
 		}
 	}
+	defer row.Close()
 	return user, nil
 }
 
@@ -57,6 +58,7 @@ func ParseSingleUserSetting(row *sql.Rows) UserSettings {
 		userSettings.Viewers = ParseStringForArrayNumbers(viewers)
 		userSettings.Editors = ParseStringForArrayNumbers(editors)
 	}
+	defer row.Close()
 	//return the note
 	return userSettings
 }
@@ -75,5 +77,6 @@ func ParseUserArray(rows *sql.Rows) []User {
 		// // append the user in the users slice
 		users = append(users, user)
 	}
+	defer rows.Close()
 	return users
 }
