@@ -106,7 +106,7 @@ func getUserSettings(id int64, db *sql.DB) models.UserSettings {
 	var userSettings models.UserSettings
 
 	// create the select sql query
-	sqlStatement := `SELECT * FROM userSettings WHERE id=$1`
+	sqlStatement := `SELECT * FROM usersettings WHERE id=$1`
 
 	// execute the sql statement
 	row := QueryRowForType(db, sqlStatement, id)
@@ -122,7 +122,7 @@ func updateuserSettings(id int64, userSettings models.UserSettings, db *sql.DB) 
 
 	PingOrPanic(db)
 	// create the update sql query
-	sqlStatement := `UPDATE userSettings SET id=$1, viewers=$2, editors=$3 WHERE id=$1`
+	sqlStatement := `UPDATE usersettings SET id=$1, viewers=$2, editors=$3 WHERE id=$1`
 
 	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors))
 
@@ -135,7 +135,7 @@ func deleteUserSettings(id int64, db *sql.DB) int64 {
 	PingOrPanic(db)
 
 	// // create the delete sql query
-	sqlStatement := `DELETE FROM userSettings WHERE id=$1`
+	sqlStatement := `DELETE FROM usersettings WHERE id=$1`
 
 	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id)
 
@@ -147,7 +147,7 @@ func insertUserSettings(userSettings models.UserSettings, db *sql.DB) int64 {
 	PingOrPanic(db)
 	// create the insert sql query
 	// returning id will return the id of the inserted note
-	sqlStatement := `INSERT INTO userSettings (viewers, editors) VALUES ( $2, $3) RETURNING id`
+	sqlStatement := `INSERT INTO usersettings (viewers, editors) VALUES ( $2, $3) RETURNING id`
 	// the inserted id will store in this id
 	id := QueryRowForID(db, sqlStatement, userSettings.ID, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors))
 

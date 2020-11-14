@@ -74,7 +74,7 @@ func PingOrPanic(db *sql.DB) *sql.DB {
 	if err != nil {
 		log.Printf("Database Error %v", err)
 		db.Close()
-		newDb := CreateConnection()
+		newDb, _ := CreateConnection()
 		return newDb
 	}
 	return nil

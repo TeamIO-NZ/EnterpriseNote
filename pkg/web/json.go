@@ -315,12 +315,14 @@ func (server Server) ReturnSingleUserSettings(w http.ResponseWriter, r *http.Req
 	json.NewEncoder(w).Encode(note)
 }
 
-//CreateNewUser Create Note in json format
+//CreateNewUserSetting Create Note in json format
 func (server Server) CreateNewUserSettings(w http.ResponseWriter, r *http.Request) {
 	// return the string response containing the request body
 
 	var userSettings models.UserSettings
 	err := json.NewDecoder(r.Body).Decode(&userSettings)
+	log.Println("Decoding user settings")
+	log.Println(userSettings)
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
 		res := models.BuildAPIResponseFail("User Settings note saved", nil)

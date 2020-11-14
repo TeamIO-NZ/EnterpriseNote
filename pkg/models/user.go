@@ -23,8 +23,8 @@ type User struct {
 //User common settings table
 type UserSettings struct {
 	ID      int   `Json:"id`
-	Viewers []int `json:"Viewers"`
-	Editors []int `json:"Editors"`
+	Viewers []int `json:"viewers"`
+	Editors []int `json:"editors"`
 }
 
 //ParseSingleUser does a thing
