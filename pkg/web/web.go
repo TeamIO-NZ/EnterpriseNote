@@ -43,10 +43,13 @@ func (server Server) Start() {
 		server.config.Port = port
 		//zap.S().Warn("No webserver port config detected, using 8080.")
 	}
-
-	server.db = CreateConnection()
+	var nukeDatabase bool
+	server.db, nukeDatabase = CreateConnection()
 	server.HandleRequests()
 	server.db.Close()
+	if nukeDatabase {
+		createTable(server.db)
+	}
 }
 
 //HandleRequests run me to make the server work
@@ -94,14 +97,19 @@ func (server Server) HandleRequests() {
 // }
 
 //------------------------------SQL Hander functions--------------------------------//
+
 // create connection with postgres db
-func CreateConnection() *sql.DB {
+func CreateConnection() (*sql.DB, bool) {
 	// load .env file
 
 	err := godotenv.Load(".env")
 	var postgresString string
+	nukeDatabase := false
 	if strings.ToLower(os.Getenv("USE_LOCAL_INSTANCE")) == "true" {
 		postgresString = os.Getenv("LOCAL_POSTGRES_URL")
+		if strings.ToLower(os.Getenv("NUKE_DATABASE")) == "true" {
+			nukeDatabase = true
+		}
 	} else {
 		postgresString = os.Getenv("ALT_POSTGRES_URL")
 	}
@@ -117,13 +125,12 @@ func CreateConnection() *sql.DB {
 	}
 	fmt.Println("Successfully connected!")
 	// return the connection
-	return db
+	return db, nukeDatabase
 }
 
 //populates database with fake data
-func createTable() {
-	//creates database connection
-	db := CreateConnection()
+func createTable(db *sql.DB) {
+	PingOrPanic(db)
 	//prepares to close database when done
 	defer db.Close()
 

@@ -323,15 +323,15 @@ func (server Server) CreateNewUserSettings(w http.ResponseWriter, r *http.Reques
 	err := json.NewDecoder(r.Body).Decode(&userSettings)
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
+		res := models.BuildAPIResponseFail("User Settings note saved", nil)
+		json.NewEncoder(w).Encode(res)
+	} else {
+		insertID := insertUserSettings(userSettings, server.db)
+		// format a response object
+		res := models.BuildAPIResponseSuccess("User settings created succesfully", insertID)
+		json.NewEncoder(w).Encode(res)
 	}
 	// call insert user function and pass the note
-	insertID := insertUserSettings(userSettings, server.db)
-	// format a response object
-	res := response{
-		ID:      insertID,
-		Message: "User settings created successfully",
-	}
-	json.NewEncoder(w).Encode(res)
 
 }
 
