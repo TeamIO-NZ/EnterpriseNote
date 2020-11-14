@@ -137,7 +137,7 @@ func deleteUserSettings(id int64, db *sql.DB) int64 {
 	// // create the delete sql query
 	sqlStatement := `DELETE FROM usersettings WHERE id=$1`
 
-	rowsAffected := g(db, sqlStatement, id)
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id)
 
 	return rowsAffected
 }
