@@ -55,7 +55,7 @@ func (server Server) Start() {
 //HandleRequests run me to make the server work
 func (server Server) HandleRequests() {
 
-	//createTable()
+	//createTable(server.db)
 	r := mux.NewRouter().StrictSlash(true)
 
 	r.HandleFunc("/api/v1/notes", server.ReturnAllNotes).Methods("GET", "OPTIONS")
@@ -290,46 +290,4 @@ func createTable(db *sql.DB) {
 			fmt.Printf("Inserted a single record %v\n", id)
 		}
 	}
-
-	Notes = []models.Note{
-		models.Note{
-			Title:   "James is the overlord",
-			Desc:    "The best overlord",
-			Content: "The very best overlord there is",
-			Owner:   1,
-			Viewers: []int{1, 2, 3},
-			Editors: []int{4, 5},
-		},
-		models.Note{
-			Title:   "Joe is the Minion",
-			Desc:    "The best minion",
-			Content: "So i decree",
-			Owner:   2,
-			Viewers: []int{1, 2, 3},
-			Editors: []int{4, 5},
-		},
-		models.Note{
-			Title:   "No joe is the boss",
-			Desc:    "The best boss",
-			Content: "So i decree",
-			Owner:   3,
-			Viewers: []int{1, 2, 3},
-			Editors: []int{4, 5},
-		},
-	}
-	for _, note := range Notes {
-		fmt.Println(note.Desc)
-		var id int64
-		sqlStatement := `INSERT INTO notes (title, description, contents, owner, viewers, editors) VALUES ($1,$2, $3,$4,$5,$6) RETURNING id`
-
-		err := db.QueryRow(sqlStatement, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors)).Scan(&id)
-		//TODO make this error message less bad
-		if err != nil {
-			log.Printf("note: %s is the offending note", note.Title)
-			log.Printf("Unable to execute the query. %v\n", err)
-		}
-		fmt.Printf("Inserted a single record %v\n", id)
-
-	}
-
 }

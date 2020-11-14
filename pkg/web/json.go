@@ -321,19 +321,20 @@ func (server Server) CreateNewUserSettings(w http.ResponseWriter, r *http.Reques
 
 	var userSettings models.UserSettings
 	err := json.NewDecoder(r.Body).Decode(&userSettings)
-	log.Println("Decoding user settings")
-	log.Println(userSettings)
+
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
-		res := models.BuildAPIResponseFail("User Settings not saved", nil)
-		json.NewEncoder(w).Encode(res)
-	} else {
-		insertID := insertUserSettings(userSettings, server.db)
-		// format a response object
-		res := models.BuildAPIResponseSuccess("User settings created successfully", insertID)
-		json.NewEncoder(w).Encode(res)
 	}
+	var res models.APIResponse
+	// if user.viewers == "" || user.Email == "" || user.Password == "" {
+	// 	res = models.BuildAPIResponseFail("Blank users cannot be created", nil)
+	// } else {
 	// call insert user function and pass the note
+	insertID, _ := insertUserSettings(userSettings, server.db)
+	// format a response object
+	res = models.BuildAPIResponseSuccess(fmt.Sprintf("Usersettings Created with %d id", insertID), insertID)
+	//}
+	json.NewEncoder(w).Encode(res)
 
 }
 
@@ -371,7 +372,17 @@ func (server Server) UpdateUserSettings(w http.ResponseWriter, r *http.Request) 
 	}
 	// create an empty note of type note
 	var userSettings models.UserSettings
-
+	userSettings.ID = id
+	for i := 0; i < len(userSettings.Editors); i++ {
+		if userSettings.Editors[i] == 0 {
+			userSettings.Editors = append(userSettings.Editors[:i], userSettings.Editors[:i]...)
+		}
+	}
+	for i := 0; i < len(userSettings.Viewers); i++ {
+		if userSettings.Viewers[i] == 0 {
+			userSettings.Viewers = append(userSettings.Viewers[:i], userSettings.Viewers[:i]...)
+		}
+	}
 	// decode the json request to note
 	err = json.NewDecoder(r.Body).Decode(&userSettings)
 	if err != nil {
@@ -380,7 +391,7 @@ func (server Server) UpdateUserSettings(w http.ResponseWriter, r *http.Request) 
 		json.NewEncoder(w).Encode(res)
 	} else {
 		// call update note to update the note
-		updatedRows := updateuserSettings(int64(id), userSettings, server.db)
+		updatedRows, _ := updateuserSettings(userSettings, server.db)
 		// format the message string
 		//msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
 		// format the response message

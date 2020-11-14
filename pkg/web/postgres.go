@@ -118,15 +118,17 @@ func getUserSettings(id int64, db *sql.DB) models.UserSettings {
 }
 
 // update user in the DB
-func updateuserSettings(id int64, userSettings models.UserSettings, db *sql.DB) int64 {
+func updateuserSettings(userSettings models.UserSettings, db *sql.DB) (int64, error) {
 
 	PingOrPanic(db)
 	// create the update sql query
 	sqlStatement := `UPDATE usersettings SET id=$1, viewers=$2, editors=$3 WHERE id=$1`
 
-	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors))
-
-	return rowsAffected
+	res, err := db.Exec(sqlStatement, userSettings.ID, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors))
+	if err != nil {
+		log.Printf("User setting not updated due to: %v", err)
+	}
+	return res.RowsAffected()
 }
 
 // delete user in the DB
@@ -143,17 +145,40 @@ func deleteUserSettings(id int64, db *sql.DB) int64 {
 }
 
 //insert note into the database
-func insertUserSettings(userSettings models.UserSettings, db *sql.DB) int64 {
+func insertUserSettings(userSettings models.UserSettings, db *sql.DB) (int64, error) {
 	PingOrPanic(db)
+	var id int64
 	// create the insert sql query
 	// returning id will return the id of the inserted note
-	sqlStatement := `INSERT INTO usersettings (viewers, editors) VALUES ( $2, $3) RETURNING id`
+	sqlStatement := `INSERT INTO usersettings (viewers, editors) VALUES ($1,$2) RETURNING id`
 	// the inserted id will store in this id
-	id := QueryRowForID(db, sqlStatement, userSettings.ID, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors))
+	err := db.QueryRow(sqlStatement, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors)).Scan(&id)
+	//TODO make this error message less bad
 
-	// return the inserted id
-	return id
+	if err != nil {
+		log.Printf("note: %s is the offending note", userSettings.Editors)
+		log.Printf("Unable to execute the query. %v\n", err)
+	}
+	log.Printf("id: %d", id)
+	return id, err
 }
+
+//insert note into the database
+// func insertUserSettings(userSettings models.UserSettings, db *sql.DB) (id int64) {
+// 	PingOrPanic(db)
+// 	// create the insert sql query
+// 	// returning id will return the id of the inserted note
+// 	sqlStatement := `INSERT INTO usersettings (viewers, editors) VALUES ($1, $2) RETURNING id`
+// 	// the inserted id will store in this id
+// 	err := db.QueryRow(sqlStatement, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors)).Scan(&id)
+// 	if err != nil {
+// 		log.Printf("Error inserting statement")
+// 		log.Printf("Offending statement was %s", sqlStatement)
+// 	}
+// 	log.Printf("Id is: %d", id)
+// 	// return the inserted id
+// 	return id
+// }
 
 //------------------------------Main Request Handler functions- Users-------------------------------//
 
