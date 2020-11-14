@@ -325,12 +325,12 @@ func (server Server) CreateNewUserSettings(w http.ResponseWriter, r *http.Reques
 	log.Println(userSettings)
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
-		res := models.BuildAPIResponseFail("User Settings note saved", nil)
+		res := models.BuildAPIResponseFail("User Settings not saved", nil)
 		json.NewEncoder(w).Encode(res)
 	} else {
 		insertID := insertUserSettings(userSettings, server.db)
 		// format a response object
-		res := models.BuildAPIResponseSuccess("User settings created succesfully", insertID)
+		res := models.BuildAPIResponseSuccess("User settings created successfully", insertID)
 		json.NewEncoder(w).Encode(res)
 	}
 	// call insert user function and pass the note
@@ -354,10 +354,7 @@ func (server Server) DeleteUserSettings(w http.ResponseWriter, r *http.Request) 
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
 	// format the reponse message
-	res := response{
-		ID:      int64(id),
-		Message: msg,
-	}
+	res := models.BuildAPIResponseSuccess(msg, deletedRows)
 	// send the response
 	json.NewEncoder(w).Encode(res)
 }
@@ -379,16 +376,20 @@ func (server Server) UpdateUserSettings(w http.ResponseWriter, r *http.Request) 
 	err = json.NewDecoder(r.Body).Decode(&userSettings)
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
-	}
-	// call update note to update the note
-	updatedRows := updateuserSettings(int64(id), userSettings, server.db)
-	// format the message string
-	//msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
-	// format the response message
-	res := models.BuildAPIResponseSuccess("User settings updated successfully", updatedRows)
+		res := models.BuildAPIResponseFail("User Settings note saved", nil)
+		json.NewEncoder(w).Encode(res)
+	} else {
+		// call update note to update the note
+		updatedRows := updateuserSettings(int64(id), userSettings, server.db)
+		// format the message string
+		//msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
+		// format the response message
+		res := models.BuildAPIResponseSuccess("User settings updated successfully", updatedRows)
 
-	// send the response
-	json.NewEncoder(w).Encode(res)
+		// send the response
+		json.NewEncoder(w).Encode(res)
+	}
+
 }
 
 //------------------------------JSON Webrequests Hander functions -- Specifics --------------------------------//
