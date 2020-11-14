@@ -49,13 +49,6 @@ Actual Requirements
 |Note share read privilages|[]|
 |Note share edit privilages|[]|
 |Notes contain just text and meta data|[x]|ours also contains a subtitle and the ability to do markdown|
-|ability to filter notes you can access|[]|
-|Users can count occurences of the following among notes they have access to|[]|
-|A sentence with a given prefix or suffix|[]|
-|A phone number with a give area code and/or consecutive number pattern|[]|
-|An email address on a domain that is only partially provided|[]|
-|Text that contains at least three of the following case sensitive words. [meeting, minutes, agenda, action, attendees, apologies]|[]|
-|A 3+ letter word thats all caps|[]|
 |Users can edit or read notes depending on privilages|[x]|
 |The owner of a note can add more people to note.viewers and note.editors|[]|
 |The owner of the note is also the only one who can add new people to the list of editors and viewers|[]|

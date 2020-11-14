@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http" // used to access the request and response object of the api
 	"os"       // used to read the environment variable
+	"strings"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"   // used to get the params from the route
@@ -98,9 +99,14 @@ func CreateConnection() *sql.DB {
 	// load .env file
 
 	err := godotenv.Load(".env")
-
+	var postgresString string
+	if strings.ToLower(os.Getenv("USE_LOCAL_INSTANCE")) == "true" {
+		postgresString = os.Getenv("LOCAL_POSTGRES_URL")
+	} else {
+		postgresString = os.Getenv("ALT_POSTGRES_URL")
+	}
 	// Open the connection
-	db, err := sql.Open("postgres", os.Getenv("ALT_POSTGRES_URL"))
+	db, err := sql.Open("postgres", postgresString)
 	if err != nil {
 		panic(err)
 	}

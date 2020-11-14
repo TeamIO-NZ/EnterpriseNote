@@ -7,8 +7,20 @@ Name|Preparation|Participation|Reliability|Comment|
 
 
 ### Missing Specs
-
+Oh boy there are a lot
 ### Usage Instructions
+#### Initial Setup
+##### Postgres
+- Run Postgres.
+- In PGADMIN go to servers on the left
+- Right click, Create Server, Name: postgres
+- Connection tab, hostname: localhost
+- Save
+
+##### Enterprise Note
+- Extra the files to a folder
+- Edit the .env file to point to your postgres
+- Run the exe
 
 ### Maintenance 
 
