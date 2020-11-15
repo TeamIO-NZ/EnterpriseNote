@@ -392,10 +392,12 @@ func (server Server) UpdateUserSettings(w http.ResponseWriter, r *http.Request) 
 	} else {
 		// call update note to update the note
 		updatedRows, _ := updateuserSettings(userSettings, server.db)
+		log.Printf("Rows updated = %d", updatedRows)
 		// format the message string
 		//msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
 		// format the response message
-		res := models.BuildAPIResponseSuccess("User settings updated successfully", updatedRows)
+		userSettingsNew := getUserSettings(int64(userSettings.ID), server.db)
+		res := models.BuildAPIResponseSuccess("User settings updated successfully", userSettingsNew)
 
 		// send the response
 		json.NewEncoder(w).Encode(res)
