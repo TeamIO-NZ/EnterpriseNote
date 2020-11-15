@@ -150,9 +150,9 @@ func insertUserSettings(userSettings models.UserSettings, db *sql.DB) (int64, er
 	var id int64
 	// create the insert sql query
 	// returning id will return the id of the inserted note
-	sqlStatement := `INSERT INTO usersettings (viewers, editors) VALUES ($1,$2) RETURNING id`
+	sqlStatement := `INSERT INTO usersettings (id, viewers, editors) VALUES ($1,$2,$3) RETURNING id`
 	// the inserted id will store in this id
-	err := db.QueryRow(sqlStatement, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors)).Scan(&id)
+	err := db.QueryRow(sqlStatement, userSettings.ID, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors)).Scan(&id)
 	//TODO make this error message less bad
 
 	if err != nil {
