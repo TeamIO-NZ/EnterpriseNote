@@ -105,6 +105,8 @@ Go as a backend cross compiles to most operating systems so it should run on any
 - Markdown support for actual quality notes.
 - Better searching because the standard requirements were gross.
 
+### Screenshot of us doing unit tests
+![Unit Tests](https://media.discordapp.net/attachments/563680566634086400/777457693287383040/unknown.png)
 
 ### Delivery Reqs
 Zip Everything and send it in
