@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	_ "github.com/lib/pq" //its libpq
+	_ "github.com/lib/pq" //its lib pq
 	"go.iosoftworks.com/EnterpriseNote/pkg/models"
 )
 
