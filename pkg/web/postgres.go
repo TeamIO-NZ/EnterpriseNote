@@ -86,7 +86,6 @@ func insertNote(note models.Note, db *sql.DB) (int64, error) {
 	sqlStatement := `INSERT INTO notes (title, description, contents, owner, viewers, editors) VALUES ($1,$2, $3,$4,$5,$6) RETURNING id`
 	// the inserted id will store in this id
 	res, err := db.Exec(sqlStatement, note.Title, note.Desc, note.Content, note.Owner, pq.Array(note.Viewers), pq.Array(note.Editors))
-	//TODO make this error message less bad
 	if err != nil {
 		log.Printf("note: %s is the offending note", note.Title)
 		log.Printf("Unable to execute the query. %v\n", err)
@@ -153,8 +152,6 @@ func insertUserSettings(userSettings models.UserSettings, db *sql.DB) (int64, er
 	sqlStatement := `INSERT INTO usersettings (id, viewers, editors) VALUES ($1,$2,$3) RETURNING id`
 	// the inserted id will store in this id
 	err := db.QueryRow(sqlStatement, userSettings.ID, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors)).Scan(&id)
-	//TODO make this error message less bad
-
 	if err != nil {
 		log.Printf("note: %v is the offending note", userSettings.Editors)
 		log.Printf("Unable to execute the query. %v\n", err)
@@ -327,7 +324,6 @@ func testInsert(user models.User, db *sql.DB) int64 {
 		sqlStatement := `INSERT INTO users (name, password,email,gender,token) VALUES ($1, $2, $3,$4,$5) RETURNING userId`
 		//fmt.Printf("offending id = %d", )
 		err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)
-		//TODO make this error message less bad
 		if err != nil {
 			log.Printf("Unable to execute the query. %v\n", err)
 		}
@@ -337,64 +333,6 @@ func testInsert(user models.User, db *sql.DB) int64 {
 }
 
 /*------------------specific searches-----------**/
-// get one user from the DB by its userid
-func getSpecificNotes(db *sql.DB, id int, targetFunction string, prefix string) []models.Note {
-	// check the connection
-	PingOrPanic(db)
-
-	var notes []models.Note
-
-	// create the select sql query
-	//TODO work out this statement
-	sqlStatement := ` `
-	fmt.Println(id)
-	fmt.Println(targetFunction)
-	fmt.Println(prefix)
-	switch targetFunction {
-	case "1":
-		{
-			//TODO a sentence with a given prefix and/or suffix.
-			sqlStatement = `SELECT * FROM notes 
-			WHERE editors @> ARRAY[$1]::int[] or viewers @> ARRAY[$1]::int[] or owner = $1
-			AND contents LIKE $2`
-			break
-		}
-	case "2":
-		{
-			//TODO-a phone number with a given area code and optionally a consecutive sequence of numbers that are part 0f that number.
-			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
-			break
-		}
-	case "3":
-		{
-			//TODO an email address on a domain that is only partially provided.
-			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
-			break
-		}
-	case "4":
-		{
-			//TODO text that contains at least three of the following case-insensitive words: meeting, minutes, agenda, action, attendees, apologies.
-
-			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
-			break
-		}
-	case "5":
-		{
-			//TODO a word in all capitals of three characters or more.
-			sqlStatement = `SELECT * FROM notes WHERE contents LIKE ''`
-			break
-		}
-	}
-	sqlStatement = `SELECT * FROM notes 
-			WHERE editors @> ARRAY[$1]::int[] or viewers @> ARRAY[$1]::int[] or owner = $1`
-	//AND contents LIKE $2`
-	rows := QueryRowForType(db, sqlStatement, id)
-	// iterate over the rows
-	notes = models.ParseNoteArray(rows)
-	// close the statement
-	defer rows.Close()
-	return notes
-}
 
 //give this a name and password and it spits out an api response with a token
 func checkLogin(name string, password string, db *sql.DB) models.APIResponse {

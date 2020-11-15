@@ -63,7 +63,6 @@ func (server Server) HandleRequests() {
 	r.HandleFunc("/api/v1/note", server.CreateNewNote).Methods("POST", "OPTIONS")
 	r.HandleFunc("/api/v1/note/{id}/{userid}", server.UpdateNote).Methods("PUT", "OPTIONS")
 	r.HandleFunc("/api/v1/note/{id}", server.DeleteNote).Methods("DELETE", "OPTIONS")
-	r.HandleFunc("/api/v1/note/{id}/{targetFunction}/{prefix}", server.SearchNotesForSpecifics)
 
 	r.HandleFunc("/api/v1/users", server.ReturnAllUsers).Methods("GET", "OPTIONS")
 	r.HandleFunc("/api/v1/user/{id}", server.ReturnSingleUser).Methods("GET", "OPTIONS")
@@ -196,7 +195,6 @@ func createTable(db *sql.DB) {
 		sqlStatement := `INSERT INTO userSettings (id, viewers,editors) VALUES ($1,$2, $3) RETURNING id`
 
 		err := db.QueryRow(sqlStatement, userSettings.ID, pq.Array(userSettings.Viewers), pq.Array(userSettings.Editors)).Scan(&id)
-		//TODO make this error message less bad
 		if err != nil {
 			log.Printf("Unable to execute the query. %v\n", err)
 		}
@@ -281,7 +279,6 @@ func createTable(db *sql.DB) {
 			sqlStatement := `INSERT INTO users (name, password,email,gender,token) VALUES ($1, $2, $3,$4,$5) RETURNING userId`
 			//fmt.Printf("offending id = %d", )
 			err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)
-			//TODO make this error message less bad
 			if err != nil {
 				log.Printf("Unable to execute the query. %v\n", err)
 			}

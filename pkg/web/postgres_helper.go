@@ -81,7 +81,6 @@ func PingOrPanic(db *sql.DB) *sql.DB {
 }
 
 //Execute does statements
-//TODO maybe make this return a response
 func Execute(db *sql.DB, sqlStatement string) {
 	//execute the sql statement and return a response
 	_, err := db.Exec(sqlStatement)

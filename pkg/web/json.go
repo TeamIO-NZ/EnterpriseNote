@@ -438,25 +438,6 @@ func (server Server) GetAllNotesUserHasAccessTo(w http.ResponseWriter, r *http.R
 
 }
 
-//SearchNotesForSpecifics //TODO this needs work. it currently returns no rows
-func (server Server) SearchNotesForSpecifics(w http.ResponseWriter, r *http.Request) {
-	// get the userid from the request params, key is "id"
-	vars := mux.Vars(r)
-	// convert the id type from string to int
-	id, err := strconv.Atoi(vars["id"])
-	prefix := vars["prefix"]
-	targetFunction := vars["targetFunction"]
-
-	if err != nil {
-		log.Printf("Unable to convert the string into an int. %v", err)
-	}
-	//get specific notes in the database. returns the notes and any errors
-	//input is 1-5 based on what notes we want. More functions to come maybe?
-	notes := getSpecificNotes(server.db, id, targetFunction, prefix)
-	// send all the notes as response
-	json.NewEncoder(w).Encode(notes)
-}
-
 //Login method that generates an api key and returns it to the client if the provided login information is correct
 func (server Server) Login(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
