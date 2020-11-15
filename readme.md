@@ -10,19 +10,17 @@ The application will be available as a web-service with a light-weight front-end
 
 |Task|Status|
 |---|---|
-|Find a note|Todo|
-|Analyse a note|Todo|
-|Read and/or edit a note|Todo|
-|Change sharing details|Todo|
-|User settings|Todo|
-|Light-weight front end|Todo|
-|Find missing specifications|Todo|
-|Documentation|Todo|
-|PostgreSQL server|Todo|
+|Find a note|done|
+|Analyse a note|done|
+|Read and/or edit a note|done|
+|Change sharing details|done|
+|User settings|done|
+|Light-weight front end|done|
+|Find missing specifications|done|
+|Documentation|in progress|
+|PostgreSQL server|done|
 |Quick start guide|Todo|
-|Unit Testing|Todo|
-
-Actual feature Details
+|Unit Testing|in progress|
 
 
 Link: [Documentation](https://eitonline.eit.ac.nz/pluginfile.php/2732418/mod_resource/content/1/ITPR6.518%20Enterprise%20Software%20Development%202.Project%202020.pdf)
@@ -37,7 +35,7 @@ Connection tab, hostname: localhost
 Save
 
 Enterprise note is an online notebook program.
-
+---
 Actual Requirements
 |Requirement|Status|Comments|
 |--|--|---|
@@ -45,14 +43,14 @@ Actual Requirements
 |Users can create note|[x]|done|
 |User who creates note is owner of note|[x]|done|
 |All users have access to the list of users|[x]|done on the front end|
-|A note can be shared with other user|[]|
-|Note share read privilages|[]|
-|Note share edit privilages|[]|
+|A note can be shared with other user|[x]|
+|Note share read privilages|[x]|
+|Note share edit privilages|[x]|
 |Notes contain just text and meta data|[x]|ours also contains a subtitle and the ability to do markdown|
 |Users can edit or read notes depending on privilages|[x]|
-|The owner of a note can add more people to note.viewers and note.editors|[]|
-|The owner of the note is also the only one who can add new people to the list of editors and viewers|[]|
+|The owner of a note can add more people to note.viewers and note.editors|[x]|
+|The owner of the note is also the only one who can add new people to the list of editors and viewers|[x]|
 |Third table that contains userid, user.viewers array, user.editors array for ease of sharing|[x]|
-|Ability to apply said common settings to a note|[]|
+|Ability to apply said common settings to a note|[x]|
 
 
