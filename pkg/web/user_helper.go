@@ -120,29 +120,7 @@ func deleteUser(id int64, db *sql.DB) int64 {
 
 	return rowsAffected
 }
-
-//insert note into the database
 func insertUser(user models.User, db *sql.DB) int64 {
-	// check the connection
-	PingOrPanic(db)
-
-	var id int64
-	canInsert := false
-	_, err := getUserByName(string(user.Name), db)
-	if err != nil {
-		canInsert = true
-		log.Printf("This user name is free")
-	}
-
-	//if you can insert the user then do so
-	if canInsert == true {
-		sqlStatement := `INSERT INTO users (name, email, password, gender) VALUES ($1, $2, $3,$4) RETURNING userId`
-		id = QueryRowForID(db, sqlStatement, &user.Name, &user.Email, &user.Password, &user.Gender)
-		fmt.Printf("Created user with id of %d", id)
-	}
-	return id
-}
-func testInsert(user models.User, db *sql.DB) int64 {
 	//fmt.Println(user.Name)
 	var id int64
 	canInsert := true

@@ -16,89 +16,76 @@ import (
 
 //ReturnAllUsers Gets all the notes in json format
 func (server Server) ReturnAllUsers(w http.ResponseWriter, r *http.Request) {
-	//get all the notes in the database. returns the notes and any errors
-	users := getAllUsers(server.db)
-	// send all the notes as response
-	json.NewEncoder(w).Encode(users)
+	users := getAllUsers(server.db) //get all the notes in the database. returns the notes and any errors
+	var res models.APIResponse
+	if len(users) == 0 {
+		res = models.BuildAPIResponseFail("Found no users", nil)
+	} else {
+		res = models.BuildAPIResponseSuccess("Found all users", users)
+	}
+	json.NewEncoder(w).Encode(res) // send all the notes as response
 }
 
 //ReturnSingleUser Get Notes in json format by id
-//use mux to get us single notes
 func (server Server) ReturnSingleUser(w http.ResponseWriter, r *http.Request) {
-	//we will need to parse the path parameters
-	vars := mux.Vars(r)
-	// we will need to extract the `id` of the article we wish to return
-	// convert the id type from string to int
-	id, err := strconv.Atoi(vars["id"])
+	vars := mux.Vars(r)                 // mux params
+	id, err := strconv.Atoi(vars["id"]) // convert the id type from string to int
+	var res models.APIResponse
+
 	if err != nil {
 		log.Printf("Unable to convert the string into int.  %v", err)
+		res = models.BuildAPIResponseFail("Invalid id", nil)
+	} else {
+		note := getUser(int64(id), server.db) // call the getUser function with user id to retrieve a single user
+		res = models.BuildAPIResponseSuccess("User is found", note)
 	}
-	// call the getUser function with user id to retrieve a single user
-	note := getUser(int64(id), server.db)
-
-	// send the response
-	json.NewEncoder(w).Encode(note)
+	json.NewEncoder(w).Encode(res) // send the response
 }
 
 //ReturnSingleUserByName Get Notes in json format by username
-//use mux to get us single notes
 func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Request) {
-	//we will need to parse the path parameters
-	vars := mux.Vars(r)
-	// we will need to extract the `id` of the article we wish to return
-	// convert the id type from string to int
-	name := vars["username"]
+	vars := mux.Vars(r)      //mux params
+	name := vars["username"] //get the id
+	var res models.APIResponse
 
-	// call the getUser function with user id to retrieve a single user
-	note, err := getUserByName(name, server.db)
+	note, err := getUserByName(name, server.db) // call the getUser function with user id to retrieve a single user
 	if err != nil {
-		json.NewEncoder(w).Encode(models.BuildAPIResponseFail("Username in use", nil))
-		return
+		res = models.BuildAPIResponseFail("Username in use", nil)
+	} else {
+		res = models.BuildAPIResponseSuccess("User found", note)
 	}
-
-	// send the response
-	json.NewEncoder(w).Encode(note)
+	json.NewEncoder(w).Encode(res) // send the response
 }
 
 //ReturnSingleUserByEmail Get Notes in json format by username
-//use mux to get us single notes
 func (server Server) ReturnSingleUserByEmail(w http.ResponseWriter, r *http.Request) {
-	//we will need to parse the path parameters
-	vars := mux.Vars(r)
-	// we will need to extract the `id` of the article we wish to return
-	// convert the id type from string to int
-	email := vars["email"]
-
-	// call the getUser function with user id to retrieve a single user
-	user, err := getUserByEmail(email, server.db)
+	vars := mux.Vars(r)                           // mux params
+	email := vars["email"]                        // get the email value
+	user, err := getUserByEmail(email, server.db) // call the getUser function with user id to retrieve a single user
+	var res models.APIResponse
 	if err != nil {
-		json.NewEncoder(w).Encode(models.BuildAPIResponseFail("Email in use", nil))
-		return
+		res = models.BuildAPIResponseFail("Email in use", nil)
+	} else {
+		res = models.BuildAPIResponseSuccess("User found", user)
 	}
-
-	// send the response
-	json.NewEncoder(w).Encode(user)
-
+	json.NewEncoder(w).Encode(res) // send the response
 }
 
 //CreateNewUser Create Note in json format
 func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
-	// return the string response containing the request body
+	var user models.User       // make a user
+	var res models.APIResponse // make a response
 
-	var user models.User
-	err := json.NewDecoder(r.Body).Decode(&user)
-
+	err := json.NewDecoder(r.Body).Decode(&user) //decode the user
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
+		res = models.BuildAPIResponseFail("Unable to decode the request body", nil)
 	}
-	var res models.APIResponse
 	if user.Name == "" || user.Email == "" || user.Password == "" {
 		res = models.BuildAPIResponseFail("Blank users cannot be created", nil)
 	} else {
-		// call insert user function and pass the note
-		insertID := testInsert(user, server.db)
-		// format a response object
-		res = models.BuildAPIResponseSuccess(fmt.Sprintf("User Created with %d id", insertID), nil)
+		insertID := insertUser(user, server.db)                                                     // call insert user function and pass the note
+		res = models.BuildAPIResponseSuccess(fmt.Sprintf("User Created with %d id", insertID), nil) // format a response object
 	}
 	json.NewEncoder(w).Encode(res)
 
@@ -106,24 +93,16 @@ func (server Server) CreateNewUser(w http.ResponseWriter, r *http.Request) {
 
 //DeleteUser deletes a note
 func (server Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	// once again, we will need to parse the path parameters
-	vars := mux.Vars(r)
-	// we will need to extract the `id` of the article we need to delete
+	vars := mux.Vars(r)                 //mux params
+	id, err := strconv.Atoi(vars["id"]) // convert the id in string to int
+	var res models.APIResponse          // make a response
 
-	// convert the id in string to int
-	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		log.Printf("Unable to convert the string into int.  %v", err)
-	}
-	// call the deleteUser, convert the int to int64
-	deletedRows := deleteUser(int64(id), server.db)
-
-	// format the message string
-	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
-	// format the response message
-	res := response{
-		ID:      int64(id),
-		Message: msg,
+		res = models.BuildAPIResponseFail("Unable to convert the string into int", nil)
+	} else {
+		deletedRows := deleteUser(int64(id), server.db) // call the deleteUser, convert the int to int64
+		res = models.BuildAPIResponseSuccess("User updated successfully.", deletedRows)
 	}
 	// send the response
 	json.NewEncoder(w).Encode(res)
@@ -131,49 +110,40 @@ func (server Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 //UpdateUser updates the note as json
 func (server Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
-	// get the userid from the request params, key is "id"
-	vars := mux.Vars(r)
-	// convert the id type from string to int
-	id, err := strconv.Atoi(vars["id"])
+	vars := mux.Vars(r)                 // mux params
+	id, err := strconv.Atoi(vars["id"]) // convert the id type from string to int
+	var res models.APIResponse          // make a response
+	var user models.User                // make a user
+
 	if err != nil {
 		log.Printf("Unable to convert the string into an int. %v", err)
+		res = models.BuildAPIResponseFail("Unable to convert the string into an int.", nil)
+	} else {
+		err = json.NewDecoder(r.Body).Decode(&user) // decode the json request to note
+		if err != nil {
+			log.Printf("Unable to decode the request body.  %v", err)
+			res = models.BuildAPIResponseFail("Unable to decode the request body.", nil)
+		} else {
+			updatedRows := updateUser(int64(id), user, server.db) // call update note to update the note
+			res = models.BuildAPIResponseSuccess("User updated successfully.", updatedRows)
+		}
 	}
-	// create an empty note of type note
-	var user models.User
-
-	// decode the json request to note
-	err = json.NewDecoder(r.Body).Decode(&user)
-	if err != nil {
-		log.Printf("Unable to decode the request body.  %v", err)
-	}
-	// call update note to update the note
-	updatedRows := updateUser(int64(id), user, server.db)
-	// format the message string
-	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
-	// format the response message
-	res := response{
-		ID:      int64(id),
-		Message: msg,
-	}
-
-	// send the response
-	json.NewEncoder(w).Encode(res)
+	json.NewEncoder(w).Encode(res) // send the response
 }
 
 //Login method that generates an api key and returns it to the client if the provided login information is correct
 func (server Server) Login(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	username := vars["username"]
-	password := vars["password"]
-	if username == "" || password == "" {
-		_ = json.NewEncoder(w).Encode(models.APIResponse{
-			Code:    400,
-			Message: "400: Bad Request. Empty username or password, set X-Username or X-Password headers to use.",
-		})
-	}
-	//create the data
-	var data = checkLogin(username, password, server.db)
+	vars := mux.Vars(r)          // mux params
+	username := vars["username"] // get username
+	password := vars["password"] // get password
+	var res models.APIResponse   // make a response
 
-	//encode the data
-	json.NewEncoder(w).Encode(data)
+	if username == "" || password == "" {
+		res = models.BuildAPIResponseFail("Bad Request. Empty username or password", nil)
+	} else {
+		var data = checkLogin(username, password, server.db) //create the data
+		res = models.BuildAPIResponseSuccess("Login successful", data)
+	}
+	json.NewEncoder(w).Encode(res) //encode the data
+
 }
