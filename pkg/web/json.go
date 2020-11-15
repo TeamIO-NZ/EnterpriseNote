@@ -307,12 +307,16 @@ func (server Server) ReturnSingleUserSettings(w http.ResponseWriter, r *http.Req
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
 		log.Printf("Unable to convert the string into int.  %v", err)
-	}
-	// call the getUser function with user id to retrieve a single user
-	note := getUserSettings(int64(id), server.db)
+		models.BuildAPIResponseFail("Get Failed", nil)
+	} else {
 
-	// send the response
-	json.NewEncoder(w).Encode(note)
+		// call the getUser function with user id to retrieve a single user
+		userSettings := getUserSettings(int64(id), server.db)
+		res := models.BuildAPIResponseSuccess("Users retrieved successfully", userSettings)
+		// send the response
+		json.NewEncoder(w).Encode(res)
+	}
+
 }
 
 //CreateNewUserSetting Create Note in json format
