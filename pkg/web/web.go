@@ -48,7 +48,10 @@ func (server Server) Start() {
 	server.db.Close()
 	if nukeDatabase {
 		CreateTable(server.db)
+	} else {
+		firstRun(server.db)
 	}
+
 }
 
 //HandleRequests run me to make the server work
@@ -91,9 +94,9 @@ func (server Server) HandleRequests() {
 
 //CreateConnection create connection with postgres db
 func CreateConnection() (*sql.DB, bool) {
-	err := godotenv.Load(".env")                                    // load .env file
-	var postgresString string                                       // store the string
-	nukeDatabase := false                                           // do we nuke the database
+	err := godotenv.Load(".env") // load .env file
+	var postgresString string    // store the string
+	nukeDatabase := false
 	if strings.ToLower(os.Getenv("USE_LOCAL_INSTANCE")) == "true" { // use local postgres install
 		postgresString = os.Getenv("LOCAL_POSTGRES_URL")           // yes do
 		if strings.ToLower(os.Getenv("NUKE_DATABASE")) == "true" { // nuke database
@@ -112,4 +115,41 @@ func CreateConnection() (*sql.DB, bool) {
 	}
 	fmt.Println("Successfully connected!")
 	return db, nukeDatabase // return the connection
+}
+
+func firstRun(db *sql.DB) {
+	PingOrPanic(db)
+	//prepares to close database when done
+	defer db.Close()
+	//create the base notes table for if it doesn't exist
+	sqlStatement := `CREATE TABLE IF NOT EXISTS userSettings (
+		id Serial PRIMARY KEY,
+		viewers integer[],
+		editors integer[]
+	);`
+	Execute(db, sqlStatement)
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `CREATE TABLE IF NOT EXISTS users (
+		userId serial PRIMARY KEY,
+		name TEXT,
+		password TEXT,
+		gender TEXT,
+		email TEXT,
+		token TEXT,
+		userSettingsId int default 1
+	);`
+	Execute(db, sqlStatement)
+
+	//create the base notes table for if it doesn't exist
+	sqlStatement = `CREATE TABLE IF NOT EXISTS notes (
+			id serial PRIMARY KEY,
+			title TEXT,
+			description TEXT,
+			contents TEXT,
+			owner INT,
+			viewers integer[],
+			editors integer[],
+			FOREIGN KEY (owner)	REFERENCES users (userId) on delete cascade on update cascade
+		);`
+	Execute(db, sqlStatement)
 }

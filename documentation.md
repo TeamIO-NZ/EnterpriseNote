@@ -59,7 +59,6 @@ Actual Requirements Frontend
 - Extract the files to a folder
 - Edit the .env file to point to your postgres
 - Run the exe
-//TODO initial database creation instructions
 
 ### Maintenance 
 None should be required. The program is very set and forget other than keeping on top of any bugs that might pop up that we haven't found yet.
@@ -89,7 +88,18 @@ Enterprise Note is a fully functional note taking application that could be used
 The beauty of react and material design is that it works the same on all browsers and has built in support for media queries and break points so it should look great on all devices. 
 Go as a backend cross compiles to most operating systems so it should run on any kind of server or desktop as required.
 #### Quick start guide for installing on a new server
-//TODO Link the thing above when its 100% done
+##### Postgres
+- Run Postgres.
+- In PGADMIN go to servers on the left
+- Right click, Create Server, Name: postgres
+- Connection tab, hostname: localhost
+- Save
+
+##### Enterprise Note
+- Extract the files to a folder
+- Edit the .env file to point to your postgres
+- Run the exe
+
 #### Things that we not in the initial spec but had to be added to make it work.
 - A decent front end. There is no way we were going to use standard html/css
 - Markdown support for actual quality notes.
