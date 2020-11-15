@@ -80,7 +80,7 @@ func (server Server) DeleteNote(w http.ResponseWriter, r *http.Request) {
 
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
-	// format the reponse message
+	// format the response message
 	res := response{
 		ID:      int64(id),
 		Message: msg,
@@ -195,7 +195,7 @@ func (server Server) ReturnSingleUserByName(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(note)
 }
 
-//ReturnSingleUserByName Get Notes in json format by username
+//ReturnSingleUserByEmail Get Notes in json format by username
 //use mux to get us single notes
 func (server Server) ReturnSingleUserByEmail(w http.ResponseWriter, r *http.Request) {
 	//we will need to parse the path parameters
@@ -255,7 +255,7 @@ func (server Server) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
-	// format the reponse message
+	// format the response message
 	res := response{
 		ID:      int64(id),
 		Message: msg,
@@ -297,7 +297,7 @@ func (server Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 //------------------------------JSON Webrequests User Settings Hander functions -- Users --------------------------------//
 
-//ReturnSingleUser Get Notes in json format by id
+//ReturnSingleUserSettings Get usersetting in json format by id
 //use mux to get us single notes
 func (server Server) ReturnSingleUserSettings(w http.ResponseWriter, r *http.Request) {
 	//we will need to parse the path parameters
@@ -327,7 +327,7 @@ func (server Server) ReturnSingleUserSettings(w http.ResponseWriter, r *http.Req
 
 }
 
-//CreateNewUserSetting Create Note in json format
+//CreateNewUserSettings Create UserSettings in json format
 func (server Server) CreateNewUserSettings(w http.ResponseWriter, r *http.Request) {
 	// return the string response containing the request body
 
@@ -350,7 +350,7 @@ func (server Server) CreateNewUserSettings(w http.ResponseWriter, r *http.Reques
 
 }
 
-//DeleteUser deletes a note
+//DeleteUserSettings deletes a UserSettings
 func (server Server) DeleteUserSettings(w http.ResponseWriter, r *http.Request) {
 	// once again, we will need to parse the path parameters
 	vars := mux.Vars(r)
@@ -366,13 +366,13 @@ func (server Server) DeleteUserSettings(w http.ResponseWriter, r *http.Request) 
 
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
-	// format the reponse message
+	// format the response message
 	res := models.BuildAPIResponseSuccess(msg, deletedRows)
 	// send the response
 	json.NewEncoder(w).Encode(res)
 }
 
-//UpdateUser updates the note as json
+//UpdateUserSettings updates the UpdateUserSettings as json
 func (server Server) UpdateUserSettings(w http.ResponseWriter, r *http.Request) {
 
 	// get the userid from the request params, key is "id"
@@ -475,6 +475,7 @@ func (server Server) Login(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(data)
 }
 
+//CheckConnection Checks the database is connected
 func (server Server) CheckConnection(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(models.BuildAPIResponseSuccess("Success", nil))
 }

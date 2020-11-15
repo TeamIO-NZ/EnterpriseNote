@@ -156,7 +156,7 @@ func insertUserSettings(userSettings models.UserSettings, db *sql.DB) (int64, er
 	//TODO make this error message less bad
 
 	if err != nil {
-		log.Printf("note: %s is the offending note", userSettings.Editors)
+		log.Printf("note: %v is the offending note", userSettings.Editors)
 		log.Printf("Unable to execute the query. %v\n", err)
 	}
 	log.Printf("id: %d", id)

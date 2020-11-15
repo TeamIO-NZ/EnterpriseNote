@@ -98,7 +98,7 @@ func (server Server) HandleRequests() {
 
 //------------------------------SQL Hander functions--------------------------------//
 
-// create connection with postgres db
+//CreateConnection create connection with postgres db
 func CreateConnection() (*sql.DB, bool) {
 	// load .env file
 
@@ -174,17 +174,17 @@ func createTable(db *sql.DB) {
 		);`
 	Execute(db, sqlStatement)
 	UserSettings := []models.UserSettings{
-		models.UserSettings{
+		{
 			ID:      1,
 			Viewers: []int{6, 2, 3},
 			Editors: []int{4, 5},
 		},
-		models.UserSettings{
+		{
 			ID:      2,
 			Viewers: []int{1, 2, 3},
 			Editors: []int{4, 5},
 		},
-		models.UserSettings{
+		{
 			ID:      3,
 			Viewers: []int{1, 2, 3},
 			Editors: []int{4, 5},
@@ -211,9 +211,7 @@ func createTable(db *sql.DB) {
 		gender TEXT,
 		email TEXT,
 		token TEXT,
-		userSettingsId int default 1,
-		FOREIGN KEY (userSettingsId) REFERENCES userSettings (id) on delete cascade on update cascade
-
+		userSettingsId int default 1
 	);`
 	Execute(db, sqlStatement)
 
@@ -232,37 +230,37 @@ func createTable(db *sql.DB) {
 
 	// Execute(db, sqlStatement)
 	Users := []models.User{
-		models.User{
+		{
 			Name:           "lithial",
 			Password:       "1234",
 			Email:          "me@james.me",
 			UserSettingsID: 0,
 		},
-		models.User{
+		{
 			Name:           "joe",
 			Password:       "1234",
 			Email:          "you@james.me",
 			UserSettingsID: 0,
 		},
-		models.User{
+		{
 			Name:           "peter",
 			Password:       "1234",
 			Email:          "us@james.me",
 			UserSettingsID: 0,
 		},
-		models.User{
+		{
 			Name:           "arran",
 			Password:       "1234",
 			Email:          "re@james.me",
 			UserSettingsID: 0,
 		},
-		models.User{
+		{
 			Name:           "finn",
 			Password:       "1234",
 			Email:          "de@james.me",
 			UserSettingsID: 0,
 		},
-		models.User{
+		{
 			Name:           "sam",
 			Password:       "1234",
 			Email:          "la@james.me",
