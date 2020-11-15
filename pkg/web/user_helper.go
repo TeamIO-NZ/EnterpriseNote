@@ -2,7 +2,6 @@ package web
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"go.iosoftworks.com/EnterpriseNote/pkg/models"
@@ -10,158 +9,94 @@ import (
 
 //------------------------------Main Request Handler functions- Users-------------------------------//
 
-//getNote
 // get one user from the DB by its userid
 func getUser(id int64, db *sql.DB) models.User {
-	PingOrPanic(db)
-
-	// create the select sql query
-	sqlStatement := `SELECT * FROM users WHERE userId=$1`
-
-	// execute the sql statement
-	row := QueryRowForType(db, sqlStatement, id)
-
-	// unmarshal the row object to user
-	user, _ := models.ParseSingleUser(row)
-	defer row.Close()
-	// return empty user on error
-	return user
+	PingOrPanic(db)                                       //check connection
+	sqlStatement := `SELECT * FROM users WHERE userId=$1` // create the select sql query
+	row := QueryRowForType(db, sqlStatement, id)          // execute the sql statement
+	user, _ := models.ParseSingleUser(row)                // unmarshal the row object to user
+	defer row.Close()                                     //remember to close the rows
+	return user                                           // return empty user on error
 }
 
-//getNote
 // get one user from the DB by its userid
 func getUserByName(name string, db *sql.DB) (models.User, error) {
-	// check the connection
-	PingOrPanic(db)
-	//fmt.Println("searching user by name")
-	// create the select sql query
-	sqlStatement := `SELECT * FROM users WHERE name=$1`
-
-	// execute the sql statement
-	row := QueryRowForType(db, sqlStatement, name)
-
-	// unmarshal the row object to user
-	user, err := models.ParseSingleUser(row)
-	defer row.Close()
-	// return empty user on error
-	return user, err
+	PingOrPanic(db)                                     // check the connection
+	sqlStatement := `SELECT * FROM users WHERE name=$1` // create the select sql query
+	row := QueryRowForType(db, sqlStatement, name)      // execute the sql statement
+	user, err := models.ParseSingleUser(row)            // unmarshal the row object to user
+	defer row.Close()                                   //remember to close the rows
+	return user, err                                    // return empty user on error
 }
 
 // get one user from the DB by its userid
 func getUserByEmail(email string, db *sql.DB) (models.User, error) {
-	// check the connection
-	PingOrPanic(db)
-	//fmt.Println("searching user by name")
-	// create the select sql query
-	sqlStatement := `SELECT * FROM users WHERE email=$1`
-
-	// execute the sql statement
-	row := QueryRowForType(db, sqlStatement, email)
-
-	// unmarshal the row object to user
-	user, err := models.ParseSingleUser(row)
-	defer row.Close()
-	// return empty user on error
-	return user, err
+	PingOrPanic(db)                                      // check the connection
+	sqlStatement := `SELECT * FROM users WHERE email=$1` // create the select sql query
+	row := QueryRowForType(db, sqlStatement, email)      // execute the sql statement
+	user, err := models.ParseSingleUser(row)             // unmarshal the row object to user
+	defer row.Close()                                    //remember to close the rows
+	return user, err                                     // return empty user on error
 }
 
 // get one user from the DB by its userid
 func getAllUsers(db *sql.DB) []models.User {
-	// check the connection
-	PingOrPanic(db)
-
-	var users []models.User
-
-	// create the select sql query
-	sqlStatement := `SELECT * FROM users`
-
-	// execute the sql statement
-	rows := QueryRowForType(db, sqlStatement)
-
-	users = models.ParseUserArray(rows)
-	// // iterate over the rows
-	// for rows.Next() {
-	// 	user, _ := models.ParseSingleUser(rows)
-	// 	fmt.Println(user.Name)
-	// 	// append the user in the users slice
-	// 	users = append(users, user)
-	// }
-	// return empty user on error
-	defer rows.Close()
-	return users
+	PingOrPanic(db)                           // check the connection
+	var users []models.User                   // create user array
+	sqlStatement := `SELECT * FROM users`     // create the select sql query
+	rows := QueryRowForType(db, sqlStatement) // execute the sql statement
+	users = models.ParseUserArray(rows)       // build array
+	defer rows.Close()                        // rows closing
+	return users                              // return users
 }
 
 // update user in the DB
 func updateUser(id int64, user models.User, db *sql.DB) int64 {
-
-	// check the connection
-	PingOrPanic(db)
-
-	// create the update sql query
-	sqlStatement := `UPDATE users SET name=$2, email=$3, password=$4 WHERE userId=$1`
-
-	// check how many rows affected
-	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, user.Name, user.Email, user.Password)
-
+	PingOrPanic(db)                                                                                             // check the connection
+	sqlStatement := `UPDATE users SET name=$2, email=$3, password=$4 WHERE userId=$1`                           // create the update sql query
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id, user.Name, user.Email, user.Password) // check how many rows affected
 	return rowsAffected
 }
 
 // delete user in the DB
 func deleteUser(id int64, db *sql.DB) int64 {
-
-	// check the connection
-	PingOrPanic(db)
-
-	// create the delete sql query
-	sqlStatement := `DELETE FROM users WHERE userId=$1`
-
-	// check how many rows affected
-	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id)
-
+	PingOrPanic(db)                                                       // check the connection
+	sqlStatement := `DELETE FROM users WHERE userId=$1`                   // create the delete sql query
+	rowsAffected := ExecStatementAndGetRowsAffected(db, sqlStatement, id) // check how many rows affected
 	return rowsAffected
 }
 func insertUser(user models.User, db *sql.DB) int64 {
-	//fmt.Println(user.Name)
-	var id int64
-	canInsert := true
-	_, err := getUserByName(string(user.Name), db)
-	if err != nil {
-		canInsert = true
-		log.Printf("This user name is free")
+	var id int64                                   // int for storarge
+	canInsert := true                              // can insert yes please
+	_, err := getUserByName(string(user.Name), db) // get user by name
+	if err != nil {                                //if error = nill
+		canInsert = true                     //jank way to use an error
+		log.Printf("This user name is free") //log error
 	}
 	if canInsert == true {
-		sqlStatement := `INSERT INTO users (name, password,email,gender,token) VALUES ($1, $2, $3,$4,$5) RETURNING userId`
-		//fmt.Printf("offending id = %d", )
-		err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)
+		sqlStatement := `INSERT INTO users (name, password,email,gender,token) VALUES ($1, $2, $3,$4,$5) RETURNING userId` //statement
+		err := db.QueryRow(sqlStatement, user.Name, user.Password, user.Email, user.Gender, user.Token).Scan(&id)          //query row
 		if err != nil {
 			log.Printf("Unable to execute the query. %v\n", err)
 		}
-		fmt.Printf("Inserted a single record %v\n", id)
 	}
 	return id
 }
 
 //give this a name and password and it spits out an api response with a token
 func checkLogin(name string, password string, db *sql.DB) models.APIResponse {
-	// check the connection
-	PingOrPanic(db)
-	//build the statements
-	sqlStatement := `SELECT * FROM users WHERE name = $1 and password = $2`
-	// execute the sql statement
-	rows := QueryRowForType(db, sqlStatement, name, password)
-	//build the users array
-	var users []models.User
-	//populate the users array
-	users = models.ParseUserArray(rows)
-	if len(users) == 0 {
+	PingOrPanic(db)                                                         // check the connection
+	sqlStatement := `SELECT * FROM users WHERE name = $1 and password = $2` // build the statements
+	rows := QueryRowForType(db, sqlStatement, name, password)               // execute the sql statement
+	var users []models.User                                                 // build the users array
+	users = models.ParseUserArray(rows)                                     // populate the users array
+	if len(users) == 0 {                                                    // if no users match this
 		return models.BuildAPIResponseFail("No users founds.", nil)
 	}
-	//populate the response
-	token := GenerateToken(users[0])
-	user := users[0]
-	user.Token = token
-	fmt.Printf(token)
-	api := models.BuildAPIResponseSuccess("Login Successful", user)
+	token := GenerateToken(users[0])                                // populate the response
+	user := users[0]                                                // take the first user with this info
+	user.Token = token                                              // set the token
+	api := models.BuildAPIResponseSuccess("Login Successful", user) // send a user response
 	defer rows.Close()
 	return api
 }
