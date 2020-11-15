@@ -384,6 +384,8 @@ func (server Server) UpdateUserSettings(w http.ResponseWriter, r *http.Request) 
 	}
 	// create an empty note of type note
 	var userSettings models.UserSettings
+	err = json.NewDecoder(r.Body).Decode(&userSettings)
+
 	userSettings.ID = id
 	for i := 0; i < len(userSettings.Editors); i++ {
 		if userSettings.Editors[i] == 0 {
@@ -396,7 +398,6 @@ func (server Server) UpdateUserSettings(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 	// decode the json request to note
-	err = json.NewDecoder(r.Body).Decode(&userSettings)
 	if err != nil {
 		log.Printf("Unable to decode the request body.  %v", err)
 		res := models.BuildAPIResponseFail("User Settings note saved", nil)
