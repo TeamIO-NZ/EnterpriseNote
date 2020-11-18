@@ -1,3 +1,7 @@
+# Enterprise Note
+**By James Hessell-Bowman and Joe van der Zwet**
+
+
 ### Team member contributions
 
 Name|Preparation|Participation|Reliability|Comment|
@@ -5,7 +9,9 @@ Name|Preparation|Participation|Reliability|Comment|
 |James Hessell-Bowman|10|10|10||
 |Joe van der Zwet|10|10|10||
 
-
+Github Links:
+[Frontend](https://github.com/TeamIO-NZ/note-ui)
+[Backend](https://github.com/TeamIO-NZ/EnterpriseNote)
 ### Missing Specs
 Actual Requirements Backend 
 
@@ -34,7 +40,7 @@ Actual Requirements Frontend
 |Note access page/component for displaying note information|[x]|It looks pretty cool tbh|
 |Note edit button that allows changes with a submit button|[x]|done|
 |Note access change button that opens access screen|[x]|done|
-|Access screen has a list of users that can read and edit this note|[x]|**Extra Add**|
+|Access screen has a list of users that can read and edit this note|[x]|done|
 |Access screen has a dropdown of all the users and a radio button for no access, viewer, editor|[x]|done|
 |Search bar for filtering and counting|[x]|done|
 |User List Page|[x]|This is technically required and we have it twice. It could be removed.|
@@ -105,8 +111,7 @@ Go as a backend cross compiles to most operating systems so it should run on any
 - Markdown support for actual quality notes.
 - Better searching because the standard requirements were gross.
 
-### Screenshot of us doing unit tests
+### Screenshot of us doing unit tests on the front end
 ![Unit Tests](https://media.discordapp.net/attachments/563680566634086400/777457693287383040/unknown.png)
+We opted not to do unit tests on the backend because we couldn't get the unit tests for mux to work and that was all we had to unit test for the backend. We have no other functions.
 
-### Delivery Reqs
-Zip Everything and send it in
